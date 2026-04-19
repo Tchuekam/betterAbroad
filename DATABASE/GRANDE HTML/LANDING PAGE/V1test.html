@@ -1,0 +1,2454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+  ================================================================
+  BETTER ABROAD — Landing Page v3
+  ================================================================
+  CHANGES FROM v2:
+  ─────────────────────────────────────────────────────────────
+  • Hero uses firstBackground.webp as full-screen background image
+  • Testimonials use real student photos
+  • Booking section = original calendar + slot picker (not CTA block)
+  • Dynamic diagonal color transitions between every section
+  • Reduced whitespace between sections (-40% padding)
+  • Each section flows into the next with angled clip-path dividers
+
+  HOW TO EDIT IMAGES:
+  ─────────────────────────────────────────────────────────────
+  Search "📸 IMAGE:" to find every image reference.
+  Replace the src="" value with your actual file path.
+  Image files referenced (place them in the same folder as this HTML):
+    • firstBackground.webp  → Hero background
+    • img.webp              → Testimonial 1
+    • testimonial_4.webp    → Testimonial 2
+    • testimonial.webp      → Testimonial 3
+    • testimonial1.webp     → Testimonial 4 (booking section)
+    • testimonial2.webp     → Testimonial 5 (student DB preview)
+
+  OTHER EDITS:
+  ─────────────────────────────────────────────────────────────
+  • Search "📝 EDIT:" for all text, phone numbers, emails
+  • Colors: :root block below
+  • Universities: UNIVERSITIES array in JS
+  • Students: STUDENTS array in JS
+  • Time slots: SLOTS array in JS
+  • Pre-booked dates: BOOKED_SLOTS object in JS
+  ================================================================
+-->
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 📝 EDIT: Page title + meta -->
+  <title>BetterAbroad | Where Verified Talent Meets Global Universities</title>
+  <meta name="description" content="BetterAbroad connects high-performing students with top global universities. Free, expert, exclusive." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+
+    /* ============================================================
+       CSS DESIGN TOKENS — edit all colors here
+       ============================================================ */
+    :root {
+      --navy:        #07111f;
+      --navy-2:      #0a1830;
+      --navy-3:      #0d2040;
+      --navy-4:      #0f2550;
+      --blue:        #1a56db;
+      --blue-light:  #3b82f6;
+      --teal:        #06b6d4;
+      --crimson:     #e02441;
+      --crimson-h:   #b8182e;
+      --text-hi:     #f0f4ff;
+      --text-mid:    #94a3b8;
+      --text-lo:     #3d5a80;
+      --glass:       rgba(255,255,255,0.04);
+      --glass-border:rgba(255,255,255,0.08);
+      --blue-border: rgba(59,130,246,0.30);
+      --font-h: 'Sora', sans-serif;
+      --font-b: 'Inter', sans-serif;
+      --r-sm: 8px;
+      --r-md: 14px;
+      --r-lg: 22px;
+      --sh-blue: 0 8px 28px rgba(26,86,219,0.40);
+    }
+
+    /* ── RESET ─────────────────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { font-family:var(--font-b); background:var(--navy); color:var(--text-hi); line-height:1.65; overflow-x:hidden; }
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-track { background:var(--navy); }
+    ::-webkit-scrollbar-thumb { background:var(--blue); border-radius:10px; }
+
+    .container { max-width:1200px; margin:0 auto; padding:0 28px; }
+
+    /* ── BUTTONS ─────────────────────────────────────────────── */
+    .btn {
+      display:inline-flex; align-items:center; gap:9px;
+      padding:13px 26px; border-radius:var(--r-sm);
+      font-family:var(--font-b); font-size:14px; font-weight:700;
+      cursor:pointer; text-decoration:none; border:none;
+      transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-primary { background:linear-gradient(135deg,#1a56db,#06b6d4); color:#fff; box-shadow:var(--sh-blue); }
+    .btn-primary:hover { box-shadow:0 14px 36px rgba(26,86,219,0.55); }
+    .btn-ghost   { background:transparent; color:var(--text-hi); border:1.5px solid var(--glass-border); }
+    .btn-ghost:hover { border-color:var(--blue-border); color:var(--blue-light); }
+    .btn-crimson { background:linear-gradient(135deg,#e02441,#b8182e); color:#fff; box-shadow:0 8px 24px rgba(224,36,65,.4); }
+    .btn-crimson:hover { box-shadow:0 14px 36px rgba(224,36,65,.55); }
+    .btn-green   { background:rgba(37,211,102,.12); color:#4ade80; border:1.5px solid rgba(37,211,102,.35); }
+    .btn-green:hover { background:rgba(37,211,102,.22); }
+
+    /* ── SECTION LABELS ──────────────────────────────────────── */
+    .section-label {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(26,86,219,.15); border:1px solid rgba(26,86,219,.3);
+      color:var(--blue-light); padding:5px 15px;
+      border-radius:100px; font-size:11px; font-weight:700;
+      letter-spacing:2.5px; text-transform:uppercase; margin-bottom:18px;
+    }
+    .section-title {
+      font-family:var(--font-h); font-size:clamp(28px,3.5vw,50px);
+      font-weight:800; color:var(--text-hi); margin-bottom:12px;
+    }
+    .section-title .accent {
+      background:linear-gradient(90deg,#3b82f6,#06b6d4);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-style:italic;
+    }
+    .section-title.center { text-align:center; }
+    .section-sub { color:var(--text-mid); font-size:16px; max-width:540px; margin:0 auto 52px; text-align:center; line-height:1.75; }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────── */
+    @keyframes fadeUp    { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideRight{ from{opacity:0;transform:translateX(-28px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes popBounce { 0%{transform:scale(0)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+    @keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:.45} }
+    @keyframes float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+    @keyframes marqueeScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    @keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+    /* ── REVEAL ON SCROLL ────────────────────────────────────── */
+    .reveal { opacity:0; transform:translateY(28px); transition:opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .reveal-d1{transition-delay:.10s} .reveal-d2{transition-delay:.20s}
+    .reveal-d3{transition-delay:.30s} .reveal-d4{transition-delay:.40s}
+
+    /* ── SKELETON SHIMMER ────────────────────────────────────── */
+    .shimmer {
+      background:linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.04) 75%);
+      background-size:400px 100%; animation:pulse 2s ease infinite; border-radius:6px;
+    }
+
+    /*
+    ================================================================
+     ███╗   ██╗ █████╗ ██╗   ██╗██████╗  █████╗ ██████╗
+     ████╗  ██║██╔══██╗██║   ██║██╔══██╗██╔══██╗██╔══██╗
+     ██╔██╗ ██║███████║██║   ██║██████╔╝███████║██████╔╝
+     ██║╚██╗██║██╔══██║╚██╗ ██╔╝██╔══██╗██╔══██║██╔══██╗
+     ██║ ╚████║██║  ██║ ╚████╔╝ ██████╔╝██║  ██║██║  ██║
+     ╚═╝  ╚═══╝╚═╝  ╚═╝  ╚═══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+    ================================================================ */
+    #navbar {
+      position:fixed; top:0; left:0; right:0; z-index:1000;
+      transition:all .3s ease; padding:0;
+    }
+    #navbar.scrolled {
+      background:rgba(7,17,31,.94); backdrop-filter:blur(22px);
+      border-bottom:1px solid var(--glass-border);
+      box-shadow:0 4px 32px rgba(0,0,0,.5);
+    }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; height:68px; }
+    .nav-logo { font-family:var(--font-h); font-size:20px; font-weight:800; color:var(--text-hi); text-decoration:none; }
+    .nav-logo span { background:linear-gradient(90deg,#3b82f6,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    nav ul { list-style:none; display:flex; gap:4px; }
+    nav a { display:block; padding:8px 13px; font-size:13px; font-weight:500; color:var(--text-mid); text-decoration:none; border-radius:6px; transition:all .2s; }
+    nav a:hover, nav a.active { color:var(--text-hi); background:rgba(255,255,255,.06); }
+    .nav-toggle { display:none; background:none; border:1px solid var(--glass-border); color:var(--text-hi); width:38px; height:38px; border-radius:8px; cursor:pointer; font-size:17px; }
+    @media(max-width:900px){ nav ul{display:none} .nav-toggle{display:flex;align-items:center;justify-content:center} }
+
+    /*
+    ================================================================
+     ██╗  ██╗███████╗██████╗  ██████╗
+     ██║  ██║██╔════╝██╔══██╗██╔═══██╗
+     ███████║█████╗  ██████╔╝██║   ██║
+     ██╔══██║██╔══╝  ██╔══██╗██║   ██║
+     ██║  ██║███████╗██║  ██║╚██████╔╝
+     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝
+    ================================================================
+    HERO — full-screen background image with dark overlay + signup card
+    ================================================================ */
+    #hero {
+      min-height:100vh;
+      display:flex; align-items:center;
+      padding:90px 0 0;
+      position:relative; overflow:hidden;
+
+      /* ═══════════════════════════════════════════════
+         📸 IMAGE: Hero background
+         Replace the URL below with your image path.
+         Example: background-image: url('firstBackground.webp');
+         ─────────────────────────────────────────────
+         background-image: url('firstBackground.webp');
+         ═══════════════════════════════════════════════ */
+      background-image: url('../../../ASSETS/firstBackground.webp');
+      background-size:cover;
+      background-position:center top;
+      background-repeat:no-repeat;
+    }
+    /* Dark overlay so text is legible on top of photo */
+    #hero::before {
+      content:'';
+      position:absolute; inset:0;
+      background:linear-gradient(
+        105deg,
+        rgba(7,17,31,.90) 0%,
+        rgba(10,24,48,.80) 40%,
+        rgba(15,37,80,.65) 70%,
+        rgba(7,17,31,.85) 100%
+      );
+      z-index:0;
+    }
+    /* Grid texture on top of overlay */
+    #hero::after {
+      content:''; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(26,86,219,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,86,219,.04) 1px, transparent 1px);
+      background-size:52px 52px;
+      z-index:0; pointer-events:none;
+    }
+    /* Glowing orbs */
+    .h-orb {
+      position:absolute; border-radius:50%; pointer-events:none; z-index:1;
+    }
+    .h-orb-1 {
+      width:550px; height:550px; top:-100px; right:-80px;
+      background:radial-gradient(circle, rgba(26,86,219,.16) 0%, transparent 65%);
+      animation:float 11s ease-in-out infinite;
+    }
+    .h-orb-2 {
+      width:380px; height:380px; bottom:-80px; left:-60px;
+      background:radial-gradient(circle, rgba(6,182,212,.10) 0%, transparent 65%);
+      animation:float 15s ease-in-out infinite reverse;
+    }
+
+    .hero-content {
+      position:relative; z-index:2;
+      display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
+    }
+
+    /* Left */
+    .hero-left { animation:slideRight .9s cubic-bezier(.16,1,.3,1) both; }
+    .hero-reviews {
+      display:inline-flex; align-items:center; gap:10px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+      padding:7px 16px; border-radius:100px; font-size:13px;
+      color:var(--text-mid); margin-bottom:26px;
+    }
+    .hero-stars { color:#FBBF24; letter-spacing:1px; }
+    .hero-title {
+      font-family:var(--font-h); font-size:clamp(36px,4.5vw,64px);
+      font-weight:800; line-height:1.06; margin-bottom:22px; letter-spacing:-1.5px;
+    }
+    .hero-title .grad-text {
+      background:linear-gradient(90deg,#60a5fa,#22d3ee);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-style:italic;
+    }
+    .hero-sub { font-size:17px; color:rgba(255,255,255,.75); line-height:1.8; margin-bottom:32px; max-width:460px; }
+    .hero-trust { display:flex; flex-direction:column; gap:11px; margin-bottom:36px; }
+    .hero-trust li {
+      list-style:none; display:flex; align-items:center; gap:12px;
+      font-size:14px; color:rgba(255,255,255,.8);
+    }
+    .t-icon {
+      width:28px; height:28px; border-radius:50%;
+      background:rgba(26,86,219,.22); border:1px solid rgba(26,86,219,.4);
+      display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;
+    }
+    .hero-urgency {
+      font-size:13px; font-weight:700; color:var(--crimson); margin-bottom:18px;
+      display:flex; align-items:center; gap:6px;
+    }
+    .hero-ctas { display:flex; gap:13px; flex-wrap:wrap; }
+    .hero-stats {
+      display:flex; gap:36px; margin-top:44px; padding-top:24px;
+      border-top:1px solid rgba(255,255,255,.1);
+    }
+    .hs-num { font-family:var(--font-h); font-size:26px; font-weight:800; color:#fff; }
+    .hs-lbl { font-size:11px; color:rgba(255,255,255,.45); text-transform:uppercase; letter-spacing:1px; }
+
+    /* Right — signup card */
+    .hero-right { animation:fadeUp .9s .2s cubic-bezier(.16,1,.3,1) both; }
+    .signup-card {
+      background:rgba(10,24,48,.88);
+      border:1px solid rgba(255,255,255,.11);
+      border-radius:var(--r-lg);
+      padding:42px 36px;
+      box-shadow:0 40px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.04) inset;
+      backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+      position:relative; overflow:hidden;
+    }
+    .signup-card::before {
+      content:''; position:absolute; top:0; left:20%; right:20%;
+      height:2px; background:linear-gradient(90deg,#1a56db,#06b6d4);
+    }
+    #confetti-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:10; border-radius:var(--r-lg); }
+    .sc-title { font-family:var(--font-h); font-size:21px; font-weight:700; color:var(--text-hi); margin-bottom:5px; }
+    .sc-sub   { font-size:13px; color:var(--text-lo); margin-bottom:24px; }
+    .f-grp    { margin-bottom:13px; }
+    .f-label  { display:block; font-size:11px; font-weight:700; color:var(--text-lo); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+    .f-input  {
+      width:100%; padding:12px 15px;
+      background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1);
+      border-radius:var(--r-sm); font-size:14px; font-family:var(--font-b);
+      color:var(--text-hi); outline:none; transition:border-color .2s, background .2s; box-sizing:border-box;
+    }
+    .f-input::placeholder { color:var(--text-lo); }
+    .f-input:focus { border-color:var(--blue-light); background:rgba(59,130,246,.07); }
+    .f-input option { background:var(--navy-2); }
+    .role-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:13px; }
+    .role-btn {
+      padding:10px 8px; background:rgba(255,255,255,.05);
+      border:1.5px solid rgba(255,255,255,.1); border-radius:var(--r-sm);
+      color:var(--text-mid); font-size:13px; font-weight:600; cursor:pointer;
+      transition:all .2s; font-family:var(--font-b); text-align:center;
+    }
+    .role-btn.active { background:rgba(26,86,219,.25); border-color:var(--blue); color:var(--text-hi); }
+    .f-submit {
+      width:100%; padding:14px; background:linear-gradient(135deg,#1a56db,#06b6d4);
+      color:#fff; border:none; border-radius:var(--r-sm); font-size:15px; font-weight:700;
+      cursor:pointer; font-family:var(--font-b); box-shadow:var(--sh-blue); transition:all .25s; margin-top:4px;
+    }
+    .f-submit:hover { transform:translateY(-2px); box-shadow:0 16px 40px rgba(26,86,219,.55); }
+    .f-privacy { text-align:center; font-size:11px; color:var(--text-lo); margin-top:11px; }
+    .f-success { text-align:center; padding:16px 0; display:none; animation:fadeUp .4s ease; }
+    .suc-icon  { width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg,#1a56db,#06b6d4); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px; animation:popBounce .5s .1s ease both; box-shadow:var(--sh-blue); }
+
+    /* ── HERO → next section transition ─────────────────────── */
+    /* A diagonal bottom edge that flows into the marquee bg color */
+    .section-bridge {
+      position:relative; height:70px; overflow:hidden; margin-top:-1px;
+    }
+    .section-bridge::before {
+      content:''; position:absolute; inset:0;
+    }
+    /* Each bridge defines the color it transitions TO */
+    .bridge-dark   { background:var(--navy); }
+    .bridge-navy2  { background:var(--navy-2); }
+    .bridge-navy3  { background:var(--navy-3); }
+
+    /* ── DIAGONAL SECTION DIVIDERS ───────────────────────────── */
+    /*
+       Every major section gets a ::after pseudo that overlaps the
+       next section with a diagonal clip-path creating a visual "flow"
+       instead of a hard horizontal cut.
+    */
+    .has-diagonal-bottom { position:relative; }
+    .has-diagonal-bottom::after {
+      content:''; position:absolute;
+      bottom:-40px; left:0; right:0; height:80px;
+      z-index:3; pointer-events:none;
+    }
+
+    /*
+    ================================================================
+     MARQUEE — infinite scroll of partner logos
+    ================================================================ */
+    #marquee-section {
+      background:var(--navy-2);
+      padding:40px 0; overflow:hidden;
+      position:relative; z-index:2;
+    }
+    .mq-label { font-size:11px; font-weight:700; color:var(--text-lo); text-transform:uppercase; letter-spacing:3px; text-align:center; margin-bottom:26px; }
+    .mq-outer { position:relative; display:flex; overflow:hidden; }
+    .mq-fade-l { position:absolute; top:0; bottom:0; left:0; width:120px; z-index:2; background:linear-gradient(90deg,var(--navy-2),transparent); pointer-events:none; }
+    .mq-fade-r { position:absolute; top:0; bottom:0; right:0; width:120px; z-index:2; background:linear-gradient(-90deg,var(--navy-2),transparent); pointer-events:none; }
+    .mq-track  { display:flex; gap:16px; will-change:transform; }
+    #marquee-section:hover .mq-track { animation-play-state:paused !important; }
+    .p-card {
+      display:flex; align-items:center; gap:12px;
+      background:rgba(255,255,255,.04); border:1px solid var(--glass-border);
+      border-radius:var(--r-md); padding:12px 20px; white-space:nowrap; flex-shrink:0;
+      transition:all .2s;
+    }
+    .p-card:hover { background:rgba(255,255,255,.08); border-color:var(--blue-border); transform:scale(1.03); }
+    .p-logo { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; flex-shrink:0; }
+    .p-name { font-weight:600; font-size:13px; color:var(--text-hi); }
+    .p-flag { font-size:12px; }
+
+    /* diagonal from navy-2 into navy-3 */
+    #marquee-section::after {
+      content:''; position:absolute; bottom:-30px; left:0; right:0; height:60px; z-index:3; pointer-events:none;
+      background:var(--navy-3);
+      clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    }
+
+    /*
+    ================================================================
+     SUCCESS STORIES — testimonial cards
+    ================================================================ */
+    #success {
+      background:var(--navy-3);
+      padding:80px 0 60px;
+      position:relative; z-index:2;
+    }
+    #success::after {
+      content:''; position:absolute; bottom:-30px; left:0; right:0; height:60px; z-index:3; pointer-events:none;
+      background:var(--navy-2);
+      clip-path:polygon(0 0, 100% 100%, 0 100%);
+    }
+
+    .testi-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:22px; }
+    .testi-card {
+      background:rgba(255,255,255,.04); border:1px solid var(--glass-border);
+      border-radius:var(--r-lg); overflow:hidden;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+      position:relative;
+    }
+    .testi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#1a56db,#06b6d4); opacity:0; transition:opacity .3s; }
+    .testi-card:hover { transform:translateY(-6px); border-color:var(--blue-border); box-shadow:0 20px 50px rgba(0,0,0,.55); }
+    .testi-card:hover::before { opacity:1; }
+
+    /* Photo area */
+    .testi-photo {
+      width:100%; aspect-ratio:4/3; overflow:hidden; position:relative;
+      background:var(--navy-4);
+    }
+    /* ═══════════════════════════════════════════════════════════
+       📸 IMAGE: Testimonial photos are placed INSIDE each .testi-photo div.
+       See HTML below — one <img> tag per card.
+       ═══════════════════════════════════════════════════════════ */
+    .testi-photo img {
+      width:100%; height:100%; object-fit:cover; object-position:center top;
+      display:block; transition:transform .4s ease;
+    }
+    .testi-card:hover .testi-photo img { transform:scale(1.04); }
+    /* Play overlay for video-style feel */
+    .play-overlay {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.30); cursor:pointer; transition:background .2s;
+    }
+    .play-overlay:hover { background:rgba(0,0,0,.45); }
+    .play-btn {
+      width:50px; height:50px; border-radius:50%;
+      background:rgba(255,255,255,.88); display:flex; align-items:center; justify-content:center;
+      color:var(--navy); font-size:16px; box-shadow:0 4px 20px rgba(0,0,0,.4); transition:transform .2s;
+    }
+    .play-overlay:hover .play-btn { transform:scale(1.1); }
+
+    .testi-body  { padding:26px 24px; }
+    .testi-quote { font-size:34px; color:rgba(59,130,246,.22); font-family:Georgia,serif; margin-bottom:12px; line-height:1; }
+    .testi-text  { font-size:14px; color:var(--text-mid); line-height:1.8; font-style:italic; margin-bottom:20px; }
+    .testi-author{ display:flex; align-items:center; gap:13px; padding-top:16px; border-top:1px solid var(--glass-border); }
+    .t-avatar    { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+    .t-name      { font-weight:700; font-size:13px; color:var(--text-hi); }
+    .t-pos       { font-size:12px; color:var(--text-lo); }
+
+    /*
+    ================================================================
+     TRUST BADGES
+    ================================================================ */
+    #trust {
+      background:var(--navy-2);
+      padding:36px 0;
+      position:relative; z-index:2;
+    }
+    #trust::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-3);
+      clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    }
+    .badges-row { display:flex; justify-content:center; align-items:center; gap:52px; flex-wrap:wrap; }
+    .badge-item { display:flex; align-items:center; gap:11px; color:var(--text-mid); font-size:14px; font-weight:500; }
+    .badge-icon { width:36px; height:36px; border-radius:50%; background:rgba(26,86,219,.15); border:1px solid rgba(26,86,219,.3); display:flex; align-items:center; justify-content:center; font-size:15px; }
+
+    /*
+    ================================================================
+     SERVICES — 8 cards
+    ================================================================ */
+    #services {
+      background:var(--navy-3);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #services::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-2);
+      clip-path:polygon(0 0, 100% 100%, 0 100%);
+    }
+    .srv-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:18px; }
+    .srv-card {
+      background:rgba(255,255,255,.03); border:1px solid var(--glass-border);
+      border-radius:var(--r-md); padding:28px 24px;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .srv-card:hover { background:rgba(26,86,219,.09); border-color:rgba(26,86,219,.3); transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,.4); }
+    .srv-icon  { width:50px; height:50px; border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:18px; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .srv-card:hover .srv-icon { transform:scale(1.15) rotate(-4deg); }
+    .srv-title { font-family:var(--font-h); font-size:16px; font-weight:700; color:var(--text-hi); margin-bottom:9px; }
+    .srv-desc  { font-size:13px; color:var(--text-mid); line-height:1.75; }
+
+    /*
+    ================================================================
+     COURSE FINDER
+    ================================================================ */
+    #courses { background:var(--navy-2); position:relative; z-index:2; }
+    #courses::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-3);
+      clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    }
+    /* Search header band */
+    .ch-band {
+      background:linear-gradient(135deg,var(--navy-3),var(--navy-4));
+      padding:72px 0 100px; text-align:center; position:relative; overflow:hidden;
+    }
+    .ch-band::before { content:''; position:absolute; top:-50px; right:-50px; width:300px; height:300px; border-radius:50%; border:1px solid rgba(255,255,255,.05); }
+    /* Search */
+    .s-wrap { max-width:620px; margin:0 auto; position:relative; }
+    .s-icon  { position:absolute; left:17px; top:50%; transform:translateY(-50%); color:var(--text-lo); font-size:15px; pointer-events:none; }
+    #uni-search {
+      width:100%; padding:17px 50px;
+      background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.12);
+      border-radius:var(--r-md); font-size:16px; font-family:var(--font-b); color:var(--text-hi);
+      outline:none; transition:border-color .2s; box-sizing:border-box;
+      box-shadow:0 8px 40px rgba(0,0,0,.3);
+    }
+    #uni-search::placeholder { color:var(--text-lo); }
+    #uni-search:focus { border-color:var(--blue); background:rgba(26,86,219,.08); }
+    .s-clear { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.1); border:none; border-radius:50%; width:27px; height:27px; cursor:pointer; font-size:12px; color:var(--text-mid); display:none; align-items:center; justify-content:center; }
+    #suggestions { position:absolute; top:calc(100% + 8px); left:0; right:0; background:var(--navy-3); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.6); z-index:50; display:none; }
+    .sugg-item { padding:12px 17px; display:flex; align-items:center; gap:13px; cursor:pointer; border-bottom:1px solid var(--glass-border); transition:background .15s; }
+    .sugg-item:last-child { border-bottom:none; }
+    .sugg-item:hover { background:rgba(255,255,255,.05); }
+    .sugg-logo { width:32px; height:32px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff; flex-shrink:0; }
+    .sugg-n { font-weight:600; font-size:13px; color:var(--text-hi); }
+    .sugg-m { font-size:11px; color:var(--text-lo); }
+    .sugg-t { color:var(--blue-light); font-size:12px; font-weight:700; margin-left:auto; }
+    /* Body */
+    .c-body { max-width:1200px; margin:-50px auto 0; padding:0 28px 80px; display:grid; grid-template-columns:235px 1fr; gap:22px; }
+    /* Sidebar */
+    .f-sidebar { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; position:sticky; top:86px; height:fit-content; }
+    .f-sh { padding:16px 18px; border-bottom:1px solid var(--glass-border); background:rgba(255,255,255,.03); display:flex; justify-content:space-between; align-items:center; }
+    .f-sh-t { font-family:var(--font-h); font-weight:700; font-size:14px; color:var(--text-hi); }
+    .f-sh-c { font-size:11px; color:var(--text-lo); margin-top:2px; }
+    .f-reset-btn { background:rgba(224,36,65,.15); border:none; color:#f87171; padding:5px 9px; border-radius:5px; font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font-b); display:none; }
+    .f-grp-blk { padding:14px 18px; border-bottom:1px solid var(--glass-border); }
+    .f-grp-lbl { font-size:10px; font-weight:700; color:var(--text-lo); text-transform:uppercase; letter-spacing:2px; margin-bottom:9px; }
+    .f-opts    { display:flex; flex-direction:column; gap:3px; }
+    .f-opt-btn { text-align:left; background:transparent; border:none; color:var(--text-mid); padding:6px 9px; border-radius:6px; font-size:12px; cursor:pointer; font-family:var(--font-b); transition:all .15s; }
+    .f-opt-btn:hover { background:rgba(255,255,255,.06); color:var(--text-hi); }
+    .f-opt-btn.active { background:var(--blue); color:#fff; font-weight:600; }
+    .f-foot { padding:12px 18px; font-size:11px; color:var(--text-lo); text-align:center; background:rgba(255,255,255,.02); }
+    /* Results */
+    .r-bar { background:rgba(255,255,255,.03); border:1px solid var(--glass-border); border-radius:var(--r-sm); padding:11px 17px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+    .r-cnt { font-size:13px; color:var(--text-mid); }
+    .r-srt { font-size:12px; color:var(--text-lo); }
+    .u-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:16px; }
+    .u-card { background:rgba(255,255,255,.03); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; transition:all .3s cubic-bezier(.34,1.56,.64,1); cursor:pointer; animation:fadeUp .4s ease both; }
+    .u-card:hover { transform:translateY(-5px); box-shadow:0 16px 48px rgba(0,0,0,.5); }
+    .u-bar  { height:4px; }
+    .u-body { padding:20px 18px; }
+    .u-head { display:flex; gap:13px; align-items:flex-start; margin-bottom:12px; }
+    .u-logo { width:44px; height:44px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; font-weight:800; flex-shrink:0; }
+    .u-name { font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--text-hi); line-height:1.3; margin-bottom:3px; }
+    .u-loc  { font-size:11px; color:var(--text-lo); }
+    .u-tags { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px; }
+    .u-pill { display:inline-block; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:600; }
+    .u-foot { display:flex; justify-content:space-between; align-items:center; }
+    .u-tl   { font-size:10px; color:var(--text-lo); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+    .u-tv   { font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--text-hi); }
+    .u-apply{ background:rgba(255,255,255,.06); border:1px solid var(--glass-border); color:var(--text-mid); padding:7px 13px; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; font-family:var(--font-b); transition:all .2s; }
+    .no-res { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-lo); }
+    .no-res-icon { font-size:44px; margin-bottom:12px; }
+
+    /*
+    ================================================================
+     STUDENT DATABASE PREVIEW
+    ================================================================ */
+    #students {
+      background:var(--navy-3);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #students::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-2);
+      clip-path:polygon(0 0, 100% 100%, 0 100%);
+    }
+    .st-layout { display:grid; grid-template-columns:230px 1fr; gap:26px; align-items:start; }
+    .st-filters { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; }
+    .sf-h { padding:16px 18px; border-bottom:1px solid var(--glass-border); background:rgba(255,255,255,.03); }
+    .sf-ht { font-weight:700; font-size:14px; color:var(--text-hi); }
+    .sf-row { padding:11px 18px; border-bottom:1px solid var(--glass-border); }
+    .sf-lbl { font-size:10px; font-weight:700; color:var(--text-lo); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:7px; }
+    .sf-sel { width:100%; background:rgba(255,255,255,.06); border:1.5px solid var(--glass-border); border-radius:6px; padding:8px 10px; font-size:12px; color:var(--text-mid); outline:none; font-family:var(--font-b); }
+    .sf-sel option { background:var(--navy-2); }
+    .st-grid-wrap { position:relative; }
+    .st-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:14px; }
+    .st-card { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); padding:20px 16px; text-align:center; transition:all .3s; }
+    .st-card.vis:hover { transform:translateY(-4px); border-color:var(--blue-border); }
+    .st-card.locked    { filter:blur(4px); user-select:none; pointer-events:none; }
+    .st-av { width:54px; height:54px; border-radius:50%; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#fff; }
+    .st-name { font-weight:700; font-size:13px; color:var(--text-hi); margin-bottom:4px; }
+    .st-info { font-size:11px; color:var(--text-lo); line-height:1.6; }
+    .st-gpa  { display:inline-block; padding:3px 9px; border-radius:100px; font-size:11px; font-weight:700; background:rgba(26,86,219,.2); border:1px solid rgba(26,86,219,.35); color:var(--blue-light); margin-top:9px; }
+    .db-overlay {
+      position:absolute; bottom:0; left:0; right:0; height:78%;
+      background:linear-gradient(to bottom, transparent 0%, rgba(13,32,64,.80) 28%, rgba(10,24,48,.97) 55%, var(--navy-3) 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+      padding-bottom:36px; border-radius:0 0 var(--r-lg) var(--r-lg);
+    }
+    .lock-ico   { font-size:40px; margin-bottom:14px; animation:float 4s ease-in-out infinite; }
+    .lock-title { font-family:var(--font-h); font-size:20px; font-weight:800; color:var(--text-hi); margin-bottom:9px; text-align:center; }
+    .lock-desc  { font-size:14px; color:var(--text-mid); text-align:center; max-width:400px; margin-bottom:22px; line-height:1.7; }
+
+    /*
+    ================================================================
+     BOOKING SECTION — ORIGINAL CALENDAR WIDGET
+     (restored from betterAbroad.html v1)
+    ================================================================ */
+    #booking {
+      background:var(--navy-2);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #booking::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-3);
+      clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    }
+    /* booking step dots */
+    .booking-steps { display:flex; justify-content:center; gap:8px; margin-bottom:40px; align-items:center; }
+    .step-dot { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:rgba(255,255,255,.1); color:var(--text-mid); transition:all .3s; }
+    .step-dot.active { background:var(--crimson); color:#fff; }
+    .step-dot.done   { background:var(--blue); color:#fff; }
+    .step-line { width:36px; height:1px; background:var(--glass-border); transition:background .3s; }
+    .step-line.done { background:var(--blue); }
+    .booking-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:900px; margin:0 auto; }
+    /* calendar */
+    .mini-cal { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.3); }
+    .cal-header { display:flex; justify-content:space-between; align-items:center; padding:17px 20px; border-bottom:1px solid var(--glass-border); background:rgba(255,255,255,.03); }
+    .cal-nav { background:none; border:1px solid var(--glass-border); width:29px; height:29px; border-radius:6px; cursor:pointer; font-size:16px; font-family:serif; color:var(--text-hi); }
+    .cal-month { font-family:var(--font-h); font-weight:700; font-size:15px; color:var(--text-hi); }
+    .cal-body  { padding:13px 16px; }
+    .cal-day-names { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:5px; }
+    .cal-day-name  { text-align:center; font-size:10px; font-weight:700; color:var(--text-lo); padding:3px 0; text-transform:uppercase; }
+    .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-day {
+      border:none; border-radius:7px; padding:9px 0; font-size:12px; cursor:pointer;
+      background:transparent; color:var(--text-hi); transition:all .15s; position:relative;
+      font-family:var(--font-b);
+    }
+    .cal-day:hover:not(:disabled) { background:rgba(26,86,219,.2); }
+    .cal-day.selected { background:var(--blue) !important; color:#fff !important; font-weight:700; }
+    .cal-day.today    { outline:2px solid var(--crimson); outline-offset:-2px; color:var(--crimson); font-weight:700; }
+    .cal-day:disabled { cursor:default; color:rgba(255,255,255,.15); }
+    .cal-day .dot     { position:absolute; bottom:2px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--crimson); }
+    .cal-day.selected .dot { background:rgba(255,255,255,.6); }
+    .cal-footer { padding:9px 16px; border-top:1px solid var(--glass-border); background:rgba(255,255,255,.02); font-size:10px; color:var(--text-lo); }
+    /* date info panel */
+    .date-panel { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); padding:30px; display:flex; flex-direction:column; justify-content:center; box-shadow:0 4px 20px rgba(0,0,0,.2); }
+    .date-panel-icon  { font-size:34px; margin-bottom:16px; }
+    .date-panel-title { font-family:var(--font-h); font-size:20px; color:var(--text-hi); margin-bottom:11px; }
+    .date-panel-desc  { color:var(--text-mid); font-size:13px; line-height:1.7; margin-bottom:26px; }
+    .consultant-row   { display:flex; align-items:center; gap:13px; margin-top:22px; padding-top:18px; border-top:1px solid var(--glass-border); }
+    .c-avatar         { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--blue-light)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:700; flex-shrink:0; }
+
+    /* ── BOOKING: CONSULTANT PHOTO OPTION ──────────────────────
+       📸 IMAGE: You can optionally replace the initials avatar
+       with a real photo. In the HTML below, look for #c-avatar
+       and swap the letter "B" with an <img> tag.
+       ─────────────────────────────────────────────────────────
+       Example:
+         <div class="c-avatar" style="padding:0;overflow:hidden;">
+           <img src="../../../ASSETS/testimonial1.webp" style="width:100%;height:100%;object-fit:cover;">
+         </div>
+       ──────────────────────────────────────────────────────── */
+
+    .c-name  { font-weight:700; color:var(--text-hi); font-size:13px; }
+    .c-title { color:var(--text-lo); font-size:11px; }
+    /* slots panel */
+    .slots-panel { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.2); }
+    .slots-header { padding:17px 20px; border-bottom:1px solid var(--glass-border); background:rgba(255,255,255,.03); display:flex; justify-content:space-between; align-items:center; }
+    .slots-date-lbl { font-family:var(--font-h); font-weight:700; font-size:14px; color:var(--text-hi); }
+    .slots-avail    { font-size:12px; color:var(--text-lo); margin-top:2px; }
+    .slots-back     { background:none; border:1px solid var(--glass-border); color:var(--text-mid); padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; font-family:var(--font-b); }
+    .slots-grid     { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; padding:20px; }
+    .slot-btn { padding:11px 8px; border-radius:8px; font-size:12px; cursor:pointer; background:rgba(255,255,255,.04); color:var(--text-hi); border:1px solid var(--glass-border); font-family:var(--font-b); transition:all .15s; }
+    .slot-btn:hover:not(:disabled) { background:rgba(26,86,219,.2); border-color:var(--blue); color:var(--blue-light); }
+    .slot-btn.selected { background:var(--blue); color:#fff; border-color:var(--blue); font-weight:700; }
+    .slot-btn:disabled { text-decoration:line-through; color:rgba(255,255,255,.2); cursor:default; background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.05); }
+    .slots-confirm-btn { margin:0 20px 20px; width:calc(100% - 40px); padding:14px; background:var(--crimson); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:var(--font-b); box-shadow:0 6px 20px rgba(224,36,65,.35); }
+    .slots-confirm-btn:disabled { background:rgba(255,255,255,.1); color:var(--text-lo); box-shadow:none; cursor:default; }
+    /* confirm panel */
+    .confirm-panel { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-md); padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.2); }
+    .confirm-title { font-family:var(--font-h); font-size:19px; color:var(--text-hi); margin-bottom:5px; }
+    .confirm-meta  { color:var(--text-lo); font-size:13px; margin-bottom:20px; }
+    .bk-error { background:rgba(224,36,65,.12); border:1px solid rgba(224,36,65,.3); color:#f87171; padding:10px 13px; border-radius:8px; font-size:12px; margin-bottom:12px; display:none; }
+    .confirm-note { text-align:center; font-size:11px; color:var(--text-lo); margin-top:9px; }
+    /* booking success */
+    .booking-success { background:rgba(255,255,255,.04); border:1px solid var(--glass-border); border-radius:var(--r-lg); padding:52px 38px; text-align:center; max-width:580px; margin:0 auto; box-shadow:0 10px 40px rgba(0,0,0,.4); animation:fadeUp .5s ease; display:none; }
+    .bk-sum { background:rgba(255,255,255,.03); border-radius:var(--r-md); border:1px solid var(--glass-border); padding:20px; margin-bottom:22px; text-align:left; }
+    .bk-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--glass-border); }
+    .bk-row:last-child { border-bottom:none; }
+    .bk-key { font-size:12px; color:var(--text-lo); }
+    .bk-val { font-size:12px; font-weight:600; color:var(--text-hi); max-width:220px; text-align:right; }
+    .bk-val a { color:var(--blue-light); }
+    .bk-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+    /* view-slots btn uses .f-submit style */
+    #view-slots-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1a56db,#06b6d4); color:#fff; border:none; border-radius:var(--r-sm); font-size:14px; font-weight:700; cursor:pointer; font-family:var(--font-b); box-shadow:var(--sh-blue); transition:all .25s; margin-top:4px; }
+    #view-slots-btn:disabled { background:rgba(255,255,255,.08); color:var(--text-lo); box-shadow:none; cursor:default; }
+    #view-slots-btn:not(:disabled):hover { transform:translateY(-2px); }
+
+    /*
+    ================================================================
+     FAQ
+    ================================================================ */
+    #faq {
+      background:var(--navy-3);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #faq::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy);
+      clip-path:polygon(0 0, 100% 100%, 0 100%);
+    }
+    .faq-wrap { max-width:790px; margin:0 auto; }
+    .faq-item { border-bottom:1px solid var(--glass-border); }
+    .faq-q { width:100%; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:22px 0; text-align:left; gap:14px; }
+    .faq-qt { font-family:var(--font-h); font-size:16px; font-weight:600; color:var(--text-hi); transition:color .2s; }
+    .faq-item.open .faq-qt { color:var(--blue-light); }
+    .faq-arrow { font-size:17px; color:var(--blue-light); flex-shrink:0; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .faq-item.open .faq-arrow { transform:rotate(180deg); }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+    .faq-item.open .faq-a { max-height:280px; }
+    .faq-a p { color:var(--text-mid); line-height:1.8; padding-bottom:22px; font-size:14px; }
+
+    /*
+    ================================================================
+     HOW WE MAKE MONEY — Transparency Section
+    ================================================================ */
+    #transparency {
+      background:var(--navy-3);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #transparency::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-2);
+      clip-path:polygon(0 0, 100% 100%, 0 100%);
+    }
+    .trans-card {
+      background:rgba(26,86,219,.08); border:1.5px solid rgba(26,86,219,.3); border-radius:var(--r-lg);
+      padding:48px 40px; max-width:750px; margin:0 auto 48px; position:relative; overflow:hidden;
+    }
+    .trans-card::before {
+      content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%;
+      background:radial-gradient(circle,rgba(26,86,219,.3),transparent);
+    }
+    .trans-card > * { position:relative; z-index:2; }
+    .trans-title { font-family:var(--font-h); font-size:24px; font-weight:800; color:var(--text-hi); margin-bottom:20px; text-align:center; }
+    .trans-desc { font-size:15px; color:var(--text-mid); line-height:1.85; margin-bottom:32px; text-align:center; }
+    .trans-bullets { display:grid; grid-template-columns:1fr; gap:16px; }
+    .trans-bullet {
+      display:flex; align-items:flex-start; gap:15px;
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      padding:18px 22px; border-radius:var(--r-md);
+      transition:all .25s;
+    }
+    .trans-bullet:hover {
+      background:rgba(26,86,219,.12); border-color:rgba(26,86,219,.3); transform:translateX(6px);
+    }
+    .trans-bullet-icon {
+      font-size:20px; flex-shrink:0; margin-top:2px;
+    }
+    .trans-bullet-text {
+      font-size:14px; color:var(--text-mid); line-height:1.65;
+    }
+
+    /*
+    ================================================================
+     4-STEP PROCESS
+    ================================================================ */
+    #process {
+      background:var(--navy-2);
+      padding:80px 0 70px;
+      position:relative; z-index:2;
+    }
+    #process::after {
+      content:''; position:absolute; bottom:-28px; left:0; right:0; height:56px; z-index:3; pointer-events:none;
+      background:var(--navy-3);
+      clip-path:polygon(0 100%, 100% 0, 100% 100%);
+    }
+    .process-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:28px; max-width:1100px; margin:0 auto;
+      position:relative;
+    }
+    .process-card {
+      background:rgba(255,255,255,.04); border:1px solid var(--glass-border);
+      border-radius:var(--r-lg); padding:32px 28px; text-align:center;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1); position:relative;
+    }
+    .process-card:hover {
+      background:rgba(6,182,212,.1); border-color:rgba(6,182,212,.4); transform:translateY(-8px);
+      box-shadow:0 16px 48px rgba(0,0,0,.4);
+    }
+    .process-step-num {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,#1a56db,#06b6d4); color:#fff;
+      font-family:var(--font-h); font-size:24px; font-weight:800;
+      margin-bottom:18px;
+    }
+    .process-card:hover .process-step-num {
+      transform:scale(1.1) rotate(5deg);
+    }
+    .process-title { font-family:var(--font-h); font-size:17px; font-weight:700; color:var(--text-hi); margin-bottom:12px; }
+    .process-text { font-size:13px; color:var(--text-mid); line-height:1.75; }
+    .process-arrow {
+      display:none; position:absolute; right:-32px; top:50%; transform:translateY(-50%);
+      font-size:24px; color:var(--blue-light);
+    }
+    @media(min-width:768px) {
+      .process-grid { gap:24px; }
+      .process-card:not(:last-child) .process-arrow { display:block; }
+    }
+
+    /*
+    ================================================================
+     FOOTER
+    ================================================================ */
+    footer {
+      background:var(--navy);
+      padding:64px 0 24px;
+      position:relative; z-index:2;
+    }
+    .ft-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; margin-bottom:48px; }
+    .ft-logo { font-family:var(--font-h); font-size:21px; font-weight:800; margin-bottom:14px; }
+    .ft-logo span { background:linear-gradient(90deg,#3b82f6,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .ft-desc  { color:var(--text-lo); font-size:13px; line-height:1.8; max-width:270px; margin-bottom:22px; }
+    .ft-socials { display:flex; gap:9px; }
+    .ft-soc { width:36px; height:36px; border-radius:8px; background:var(--glass); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; color:var(--text-mid); font-size:14px; text-decoration:none; transition:all .2s; }
+    .ft-soc:hover { background:var(--blue); border-color:var(--blue); color:#fff; transform:translateY(-2px); }
+    .ft-col-title { font-size:11px; font-weight:700; color:var(--text-lo); text-transform:uppercase; letter-spacing:2px; margin-bottom:17px; }
+    .ft-links { display:flex; flex-direction:column; gap:9px; }
+    .ft-lnk { color:var(--text-lo); font-size:13px; text-decoration:none; cursor:pointer; transition:color .2s; }
+    .ft-lnk:hover { color:var(--text-hi); }
+    .ft-bottom { border-top:1px solid var(--glass-border); padding-top:22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:11px; }
+    .ft-copy { color:var(--text-lo); font-size:12px; }
+    .ft-legal { display:flex; gap:22px; }
+    .ft-legal span { color:var(--text-lo); font-size:12px; cursor:pointer; transition:color .2s; }
+    .ft-legal span:hover { color:var(--text-mid); }
+
+    /*
+    ================================================================
+     RESPONSIVE
+    ================================================================ */
+    @media(max-width:960px){
+      .hero-content   { grid-template-columns:1fr; gap:48px; }
+      .c-body         { grid-template-columns:1fr; }
+      .st-layout      { grid-template-columns:1fr; }
+      .f-sidebar      { position:static; }
+      .booking-grid   { grid-template-columns:1fr; }
+      .ft-grid        { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:640px){
+      .hero-title { font-size:34px; letter-spacing:-1px; }
+      .ft-grid    { grid-template-columns:1fr; gap:30px; }
+      .hero-stats { flex-direction:column; gap:18px; }
+      .badges-row { gap:30px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NAVBAR
+       📝 EDIT: logo text, nav links, CTA button
+       ═══════════════════════════════════════════════════════════ -->
+  <header id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <!-- 📝 EDIT: logo -->
+        <a href="#hero" class="nav-logo">Better<span>Abroad</span></a>
+        <nav>
+          <ul>
+            <li><a href="#hero"         class="nav-link active">Home</a></li>
+            <li><a href="#success"      class="nav-link">Stories</a></li>
+            <li><a href="#services"     class="nav-link">Services</a></li>
+            <li><a href="#courses"      class="nav-link">Courses</a></li>
+            <li><a href="#students"     class="nav-link">For Universities</a></li>
+            <li><a href="#booking"      class="nav-link">Book Free Call</a></li>
+            <li><a href="#faq"          class="nav-link">FAQ</a></li>
+            <li><a href="admin.html" class="nav-link" style="color:#f87171;">⚙️ Admin</a></li>
+          </ul>
+        </nav>
+        <a href="#booking" class="btn btn-primary" style="padding:10px 20px;font-size:13px;">Book a Call →</a>
+        <button class="nav-toggle" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO SECTION
+       Background image set via CSS (search "📸 IMAGE: Hero background" above)
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="h-orb h-orb-1"></div>
+    <div class="h-orb h-orb-2"></div>
+
+    <div class="container" style="padding-bottom:80px;">
+      <div class="hero-content">
+
+        <!-- Left: Headline -->
+        <div class="hero-left">
+          <!-- 📝 EDIT: Google reviews badge -->
+          <div class="hero-reviews">
+            <span class="hero-stars">★★★★★</span>
+            <span>4.9 / 5 from 200+ Google Reviews</span>
+          </div>
+          <!-- 📝 EDIT: Main headline -->
+          <h1 class="hero-title">
+            <!---Get Accepted Into UK & Canada Universities — Without Paying Any Agency Fees-->
+            Get Accepted Into <span class="grad-text">UK & Canada Universities</span>.<br>
+             Without Paying<br>
+            Any Agency Fees.
+          </h1>
+          <!-- 📝 EDIT: subheading -->
+          <p class="hero-sub">
+            Our consultation and application services are free. You only pay the university directly for your tuition, and the embassy for your visa.
+            <strong style="color:#fff;">Universities pay us, not you.</strong>
+          </p>
+          <!-- 📝 EDIT: bullet trust points -->
+          <ul class="hero-trust">
+            <li><div class="t-icon">📚</div>Expert guidance through every step — applications to visa approval</li>
+            <li><div class="t-icon">🎓</div>Access to full scholarships and financial aid packages</li>
+            <li><div class="t-icon">✓</div>98% visa success rate — we handle all documentation</li>
+          </ul>
+          <!-- 📝 EDIT: CTA button labels & WhatsApp number -->
+          <div class="hero-urgency">⏰ Limited consultation slots available this week</div>
+          <div class="hero-ctas">
+            <a href="#booking" class="btn btn-crimson">Book My Free Strategy Call →</a>
+            <!-- 📝 EDIT: change 237690380798 to your WhatsApp number -->
+            <a href="https://wa.me/237690380798" target="_blank" class="btn btn-green">💬 WhatsApp Us</a>
+          </div>
+          <!-- 📝 EDIT: mini stats -->
+          <div class="hero-stats">
+            <div><div class="hs-num">1,000+</div><div class="hs-lbl">Students Placed</div></div>
+            <div><div class="hs-num">50+</div><div class="hs-lbl">Partner Universities</div></div>
+            <div><div class="hs-num">98%</div><div class="hs-lbl">Visa Success</div></div>
+          </div>
+        </div>
+
+        <!-- Right: Signup card -->
+        <div class="hero-right">
+          <div class="signup-card">
+            <canvas id="confetti-canvas"></canvas>
+
+            <!-- 📝 EDIT: card heading -->
+            <div class="sc-title">Get Your Free Assessment</div>
+            <div class="sc-sub">Takes under 60 seconds. No commitment.</div>
+
+            <div id="hero-form">
+              <!-- Role toggle -->
+              <div class="f-grp">
+                <div class="f-label">I am a</div>
+                <div class="role-row">
+                  <button class="role-btn active" id="role-student" onclick="setRole('student')">🎓 Student</button>
+                  <button class="role-btn" id="role-uni"     onclick="setRole('university')">🏛️ University</button>
+                </div>
+              </div>
+              <div class="f-grp">
+                <label class="f-label" for="h-name">Full Name *</label>
+                <input class="f-input" type="text" id="h-name" placeholder="As on your passport">
+              </div>
+              <div class="f-grp">
+                <label class="f-label" for="h-email">Email Address *</label>
+                <input class="f-input" type="email" id="h-email" placeholder="your@email.com">
+              </div>
+              <div class="f-grp">
+                <label class="f-label" for="h-phone">WhatsApp / Phone *</label>
+                <!-- 📝 EDIT: country code placeholder -->
+                <input class="f-input" type="tel" id="h-phone" placeholder="+237 690 000 000">
+              </div>
+              <div class="f-grp">
+                <label class="f-label" for="h-pass">Create Password *</label>
+                <input class="f-input" type="password" id="h-pass" placeholder="Min 8 characters">
+              </div>
+              <!-- 📝 EDIT: submit button text -->
+              <p style="font-size:11px;color:var(--crimson);font-weight:700;margin-bottom:11px;text-align:center;">⏰ Only 3 strategy calls left this week</p>
+              <button class="f-submit" onclick="heroSubmit()">Submit Free Application ✓</button>
+              <p class="f-privacy">🔒 Secure & confidential. We never sell your data.</p>
+            </div>
+
+            <!-- Success state -->
+            <div class="f-success" id="hero-success">
+              <div class="suc-icon">✓</div>
+              <h3 style="font-family:var(--font-h);font-size:21px;margin-bottom:9px;">
+                You're In, <span id="success-name">there</span>!
+              </h3>
+              <p style="color:var(--text-mid);font-size:13px;line-height:1.7;margin-bottom:20px;">
+                Your free eligibility check has been submitted. Our consultant will contact
+                <strong style="color:var(--text-hi);" id="success-email"></strong> within 24 hours.
+              </p>
+              <!-- 📝 EDIT: WhatsApp link -->
+              <a href="https://wa.me/237690380798" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;">
+                💬 Chat on WhatsApp Now
+              </a>
+              <a href="#" onclick="heroReset()" style="font-size:11px;color:var(--text-lo);display:block;margin-top:13px;">
+                Submit another enquiry
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <!-- END HERO -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       REGISTRATION FORM (Hidden until signup)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="registration-form-wrapper" style="display:none;background:var(--navy);min-height:100vh;padding:140px 0 80px;">
+    <div class="container">
+      <div style="max-width:560px;margin:0 auto;background:rgba(10,24,48,.88);border:1px solid rgba(255,255,255,.11);border-radius:var(--r-lg);padding:42px 36px;box-shadow:0 40px 80px rgba(0,0,0,.65);">
+        <h2 style="font-family:var(--font-h);font-size:28px;font-weight:700;color:var(--text-hi);margin-bottom:8px;">Welcome, <span id="reg-name">there!</span></h2>
+        <p style="color:var(--text-mid);font-size:14px;margin-bottom:28px;">Complete your profile to unlock the marketplace and start browsing universities.</p>
+        
+        <div class="f-grp">
+          <label class="f-label" for="reg-full-name">Full Name *</label>
+          <input class="f-input" type="text" id="reg-full-name" placeholder="Full name as on passport">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-dob">Date of Birth *</label>
+          <input class="f-input" type="date" id="reg-dob">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-nationality">Nationality *</label>
+          <input class="f-input" type="text" id="reg-nationality" placeholder="e.g., Cameroonian">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-gpa">GPA / Grade Average *</label>
+          <input class="f-input" type="text" id="reg-gpa" placeholder="3.75 or A+">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-major">Major / Field of Study *</label>
+          <input class="f-input" type="text" id="reg-major" placeholder="e.g., Computer Science">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-budget">Annual Budget (USD) *</label>
+          <input class="f-input" type="text" id="reg-budget" placeholder="30000">
+        </div>
+        <div class="f-grp">
+          <label class="f-label" for="reg-description">About You</label>
+          <textarea class="f-input" id="reg-description" placeholder="Tell us about your academic interests and goals..." style="min-height:100px;resize:vertical;"></textarea>
+        </div>
+        
+        <button class="f-submit" onclick="submitRegistration()" style="width:100%;">Complete Registration →</button>
+        <p class="f-privacy">Your information is secure and used only for university matching.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROFILE PAGE (Hidden until registration complete)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="profile-wrapper" style="display:none;background:var(--navy);min-height:100vh;padding:140px 0 80px;">
+    <div class="container">
+      <div style="max-width:880px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+          <h1 style="font-family:var(--font-h);font-size:32px;font-weight:700;color:var(--text-hi);margin:0;">
+            Welcome to <span style="background:linear-gradient(90deg,#60a5fa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">BetterAbroad</span>
+          </h1>
+          <button class="btn btn-ghost" onclick="logout()" style="padding:10px 18px;font-size:13px;">🚪 Logout</button>
+        </div>
+        
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);padding:32px 30px;margin-bottom:32px;">
+          <h2 style="font-family:var(--font-h);font-size:20px;color:var(--text-hi);margin-bottom:18px;">Your Profile</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+            <div>
+              <div style="font-size:11px;color:var(--text-lo);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Name</div>
+              <div style="font-size:15px;color:var(--text-hi);font-weight:600;" id="profile-name">Loading...</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-lo);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Email</div>
+              <div style="font-size:15px;color:var(--text-hi);font-weight:600;" id="profile-email">Loading...</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-lo);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Account Type</div>
+              <div style="font-size:15px;color:var(--text-hi);font-weight:600;" id="profile-role">Student</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-lo);font-weight:700;text-transform:uppercase;margin-bottom:6px;">Status</div>
+              <div style="font-size:15px;color:#10b981;font-weight:600;">✓ Verified</div>
+            </div>
+          </div>
+          
+          <div style="background:rgba(26,86,219,.08);border:1px solid rgba(26,86,219,.25);border-radius:var(--r-md);padding:16px;margin-bottom:20px;">
+            <div style="font-size:12px;color:var(--text-mid);margin-bottom:8px;">⏳ Next Step</div>
+            <div style="font-size:15px;color:var(--blue-light);font-weight:600;">Upload your documents to complete verification</div>
+          </div>
+          
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <label style="display:inline-block;cursor:pointer;">
+              <div class="btn btn-primary" style="padding:12px 20px;font-size:13px;margin:0;">📄 Upload Documents</div>
+              <input type="file" id="doc-upload" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDocument()" style="display:none;">
+            </label>
+            <button id="marketplace-btn" class="btn btn-crimson" onclick="accessMarketplace()" style="padding:12px 20px;font-size:13px;display:none;">🎓 Access Marketplace →</button>
+          </div>
+        </div>
+        
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);padding:32px 30px;">
+          <h3 style="font-family:var(--font-h);font-size:18px;color:var(--text-hi);margin-bottom:18px;">How It Works</h3>
+          <ol style="color:var(--text-mid);font-size:14px;line-height:1.8;padding-left:20px;margin:0;">
+            <li style="margin-bottom:12px;"><strong style="color:var(--text-hi);">Upload Documents:</strong> Provide your transcripts, passport, and any certifications.</li>
+            <li style="margin-bottom:12px;"><strong style="color:var(--text-hi);">Verification:</strong> Our team reviews your documents within 24 hours.</li>
+            <li style="margin-bottom:12px;"><strong style="color:var(--text-hi);">Marketplace Access:</strong> Browse verified universities and apply directly.</li>
+            <li><strong style="color:var(--text-hi);">Expert Support:</strong> Get guidance through every step of your journey.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MARKETPLACE (Hidden until profile complete)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="marketplace-wrapper" style="display:none;background:var(--navy);min-height:100vh;padding:100px 0 80px;">
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;">
+        <h1 style="font-family:var(--font-h);font-size:32px;font-weight:700;color:var(--text-hi);margin:0;">🎓 University Marketplace</h1>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-ghost" onclick="goBackToProfile()" style="padding:10px 18px;font-size:13px;">← Back to Profile</button>
+          <button class="btn btn-ghost" onclick="logout()" style="padding:10px 18px;font-size:13px;">🚪 Logout</button>
+        </div>
+      </div>
+      
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);padding:32px 30px;text-align:center;">
+        <h2 style="font-family:var(--font-h);font-size:24px;color:var(--text-hi);margin-bottom:16px;">Browse Verified Universities</h2>
+        <p style="color:var(--text-mid);font-size:15px;margin-bottom:32px;max-width:700px;margin-left:auto;margin-right:auto;">
+          All universities below have accepted our student referrals and are actively looking for qualified candidates. Click any university to view more details and apply.
+        </p>
+        
+        <div class="u-grid" id="marketplace-uni-grid" style="gap:16px;">
+          <!-- Universities will be rendered here via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO SECTION WRAPPER (for conditional display)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="hero-section-wrapper">
+    <div class="mq-label">Our Verified Partner Institutions</div>
+    <div class="mq-outer">
+      <div class="mq-fade-l"></div>
+      <div class="mq-fade-r"></div>
+      <div class="mq-track" id="mq-track">
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#660099,#9333ea);">UoM</div><div><div class="p-name">Univ. of Manchester</div><span class="p-flag">🇬🇧</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#002A5C,#1a56db);">UofT</div><div><div class="p-name">Univ. of Toronto</div><span class="p-flag">🇨🇦</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#003087,#1d4ed8);">USyd</div><div><div class="p-name">Univ. of Sydney</div><span class="p-flag">🇦🇺</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#003d7c,#1a56db);">NUS</div><div><div class="p-name">NUS Singapore</div><span class="p-flag">🇸🇬</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#169b62,#16a34a);">SEDA</div><div><div class="p-name">SEDA College Dublin</div><span class="p-flag">🇮🇪</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#d62828,#ef4444);">TUB</div><div><div class="p-name">TU Berlin</div><span class="p-flag">🇩🇪</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#ed1b2f,#f43f5e);">McGi</div><div><div class="p-name">McGill University</div><span class="p-flag">🇨🇦</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#c8102e,#ef4444);">ASBS</div><div><div class="p-name">Alpine Swiss Business</div><span class="p-flag">🇨🇭</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#0055a4,#2563eb);">ScPo</div><div><div class="p-name">Sciences Po Paris</div><span class="p-flag">🇫🇷</span></div></div>
+        <div class="p-card"><div class="p-logo" style="background:linear-gradient(135deg,#003da5,#1a56db);">TUD</div><div><div class="p-name">TU Delft</div><span class="p-flag">🇳🇱</span></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- END MARQUEE -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HOW WE MAKE MONEY — Transparency & Trust
+       A section that removes suspicion around "Free"
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="transparency">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:50px;">
+        <span class="section-label reveal">💡 Transparent Model</span>
+        <h2 class="section-title center reveal reveal-d1">How We Make Money<br><span class="accent">So You Don't Pay Anything</span></h2>
+      </div>
+
+      <div class="trans-card reveal">
+        <div class="trans-title">The Truth About Our "Free" Service</div>
+        <p class="trans-desc">
+          Universities worldwide seek qualified international students but struggle to find them.
+          We solve that problem. Universities pay us when you enroll. You pay nothing — ever.
+        </p>
+        <div class="trans-bullets">
+          <div class="trans-bullet reveal reveal-d1">
+            <div class="trans-bullet-icon">🎓</div>
+            <div class="trans-bullet-text"><strong>Universities pay us</strong> a commission when you successfully enroll.</div>
+          </div>
+          <div class="trans-bullet reveal reveal-d2">
+            <div class="trans-bullet-icon">🛡️</div>
+            <div class="trans-bullet-text"><strong>You never pay us</strong> — not for applications, scholarships, or visa support.</div>
+          </div>
+          <div class="trans-bullet reveal reveal-d3">
+            <div class="trans-bullet-icon">✅</div>
+            <div class="trans-bullet-text"><strong>No hidden fees</strong> — we handle everything from counseling to departure. Completely transparent.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- END TRANSPARENCY -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       4-STEP PROCESS
+       Your journey to studying abroad — simple & clear
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="process">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:56px;">
+        <span class="section-label reveal">📋 Simple Process</span>
+        <h2 class="section-title center reveal reveal-d1">Your Journey to Studying Abroad<br><span class="accent">Simple & Clear</span></h2>
+        <p class="section-sub reveal reveal-d2" style="margin-top:12px;">From day one to your departure — here's exactly what to expect.</p>
+      </div>
+
+      <div class="process-grid">
+        <div class="process-card reveal">
+          <div class="process-step-num">1</div>
+          <div class="process-title">Free Consultation</div>
+          <p class="process-text">We discuss your academic background, goals, budget, and preferred destinations. Understand your profile and eligibility.</p>
+          <div class="process-arrow">→</div>
+        </div>
+
+        <div class="process-card reveal reveal-d1">
+          <div class="process-step-num">2</div>
+          <div class="process-title">University Matching</div>
+          <p class="process-text">We shortlist 3–5 best-fit universities across your preferred countries. Each has real scholarship opportunities for you.</p>
+          <div class="process-arrow">→</div>
+        </div>
+
+        <div class="process-card reveal reveal-d2">
+          <div class="process-step-num">3</div>
+          <div class="process-title">Applications & Scholarships</div>
+          <p class="process-text">We prepare all documents, write your personal statement, and submit applications. We guide you through scholarship applications.</p>
+          <div class="process-arrow">→</div>
+        </div>
+
+        <div class="process-card reveal reveal-d3">
+          <div class="process-step-num">4</div>
+          <div class="process-title">Visa & Departure</div>
+          <p class="process-text">Full visa guidance, document preparation, and interview support. We stay with you until you board your flight.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- END PROCESS -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SUCCESS STORIES
+       📝 EDIT: quote, name, university per card
+       📸 IMAGE: each .testi-photo div contains one <img> tag
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="success">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <span class="section-label reveal">✦ Success Stories</span>
+        <h2 class="section-title center reveal reveal-d1">Students Who <span class="accent">Made It</span></h2>
+        <p class="section-sub reveal reveal-d2">Real students. Real results. Hear how they transformed their futures with BetterAbroad.</p>
+      </div>
+
+      <div class="testi-grid">
+
+        <!-- Testimonial 1 ───────────────────────────── -->
+        <div class="testi-card reveal">
+          <div class="testi-photo">
+
+            <!-- ═══════════════════════════════════════════
+                 📸 IMAGE: Testimonial 1
+                 File: img.webp
+                 Replace src with your actual file path.
+                 ─────────────────────────────────────────
+                 <img src="../../../ASSETS/img.webp" alt="Zainabou Soulay">
+                 ═══════════════════════════════════════════ -->
+            <img src="../../../ASSETS/img.webp" alt="Zainabou Soulay — University of Manchester">
+
+            <div class="play-overlay">
+              <div class="play-btn"><i class="fa fa-play" style="margin-left:3px;"></i></div>
+            </div>
+          </div>
+          <div class="testi-body">
+            <div class="testi-quote">"</div>
+            <!-- 📝 EDIT: testimonial text -->
+            <p class="testi-text">BetterAbroad made my dream of studying in the UK a reality. Their guidance was invaluable from university selection to visa approval.</p>
+            <div class="testi-author">
+              <div class="t-avatar" style="background:linear-gradient(135deg,#660099,#9333ea);">ZS</div>
+              <div>
+                <!-- 📝 EDIT: author name + university -->
+                <div class="t-name">Zainabou Soulay</div>
+                <div class="t-pos">University of Manchester, UK 🇬🇧</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 ───────────────────────────── -->
+        <div class="testi-card reveal reveal-d1">
+          <div class="testi-photo">
+
+            <!-- ═══════════════════════════════════════════
+                 📸 IMAGE: Testimonial 2
+                 File: testimonial 4.webp
+                 Replace src with your actual file path.
+                 ─────────────────────────────────────────
+                 <img src="../../../ASSETS/testimonial 4.webp" alt="Egono Samuel">
+                 ═══════════════════════════════════════════ -->
+            <img src="../../../ASSETS/testimonial 4.webp" alt="Egono Samuel — University of Toronto">
+
+            <div class="play-overlay">
+              <div class="play-btn"><i class="fa fa-play" style="margin-left:3px;"></i></div>
+            </div>
+          </div>
+          <div class="testi-body">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">I was skeptical at first, but they secured me a full scholarship to Canada — something I never thought was possible for me.</p>
+            <div class="testi-author">
+              <div class="t-avatar" style="background:linear-gradient(135deg,#002A5C,#1a56db);">ES</div>
+              <div>
+                <div class="t-name">Egono Samuel</div>
+                <div class="t-pos">University of Toronto, Canada 🇨🇦</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 ───────────────────────────── -->
+        <div class="testi-card reveal reveal-d2">
+          <div class="testi-photo">
+
+            <!-- ═══════════════════════════════════════════
+                 📸 IMAGE: Testimonial 3
+                 File: testimonial.webp
+                 Replace src with your actual file path.
+                 ─────────────────────────────────────────
+                 <img src="../../../ASSETS/testimonial.webp" alt="Foko Bryan">
+                 ═══════════════════════════════════════════ -->
+            <img src="../../../ASSETS/testimonial.webp" alt="Foko Bryan — Alpine Swiss Business School">
+
+            <div class="play-overlay">
+              <div class="play-btn"><i class="fa fa-play" style="margin-left:3px;"></i></div>
+            </div>
+          </div>
+          <div class="testi-body">
+            <div class="testi-quote">"</div>
+            <p class="testi-text">From application to landing in Switzerland, BetterAbroad handled everything perfectly. I'm now living my dream at ASBS Geneva!</p>
+            <div class="testi-author">
+              <div class="t-avatar" style="background:linear-gradient(135deg,#0a6640,#16a34a);">FB</div>
+              <div>
+                <div class="t-name">Foko Bryan</div>
+                <div class="t-pos">Alpine Swiss Business School, Geneva 🇨🇭</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <!-- END SUCCESS STORIES -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TRUST BADGES
+       📝 EDIT: badge text + icons
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="trust">
+    <div class="container">
+      <div class="badges-row">
+        <div class="badge-item reveal"><div class="badge-icon">🛡️</div> 100% Verified Partners</div>
+        <div class="badge-item reveal reveal-d1"><div class="badge-icon">🔒</div> Zero Hidden Fees</div>
+        <div class="badge-item reveal reveal-d2"><div class="badge-icon">⚡</div> 48hr Response Time</div>
+        <div class="badge-item reveal reveal-d3"><div class="badge-icon">🎓</div> Free For All Students</div>
+        <div class="badge-item reveal reveal-d4"><div class="badge-icon">✅</div> 98% Visa Success</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SERVICES — 8 cards
+       📝 EDIT: icon emoji, title, description for each card
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="services">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:52px;">
+        <span class="section-label reveal">What We Do</span>
+        <h2 class="section-title center reveal reveal-d1">Our <span class="accent">Services</span></h2>
+        <p class="section-sub reveal reveal-d2">End-to-end support from first consultation to landing at your dream university — all completely free for students.</p>
+      </div>
+      <div class="srv-grid">
+        <div class="srv-card reveal"><div class="srv-icon" style="background:rgba(26,86,219,.15);border:1px solid rgba(26,86,219,.3);">📚</div><div class="srv-title">Counseling & Guidance</div><p class="srv-desc">One-on-one consultation to identify the best universities and programs tailored to your academic goals.</p></div>
+        <div class="srv-card reveal reveal-d1"><div class="srv-icon" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);">🎓</div><div class="srv-title">University Applications</div><p class="srv-desc">Full assistance with applications, personal statements, and interview prep to maximize admission chances.</p></div>
+        <div class="srv-card reveal reveal-d2"><div class="srv-icon" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.25);">💰</div><div class="srv-title">Scholarships & Loans</div><p class="srv-desc">We help secure scholarships, financial aid packages, and education loans to make studying abroad achievable.</p></div>
+        <div class="srv-card reveal reveal-d3"><div class="srv-icon" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);">🛂</div><div class="srv-title">Visa Assistance</div><p class="srv-desc">Expert guidance through the entire visa process. 98% success rate — we handle all documentation.</p></div>
+        <div class="srv-card reveal"><div class="srv-icon" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);">🔍</div><div class="srv-title">Student Filtering & Screening</div><p class="srv-desc">For universities: we pre-screen and verify students before sending profiles. No noise — only matched candidates.</p></div>
+        <div class="srv-card reveal reveal-d1"><div class="srv-icon" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);">📄</div><div class="srv-title">Document Pre-Analysis</div><p class="srv-desc">All academic documents reviewed and optimized before submission to meet each institution's standards.</p></div>
+        <div class="srv-card reveal reveal-d2"><div class="srv-icon" style="background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);">📊</div><div class="srv-title">Marketing & Seminars</div><p class="srv-desc">University outreach campaigns, campus webinars, and in-country events to attract quality applicants.</p></div>
+        <div class="srv-card reveal reveal-d3"><div class="srv-icon" style="background:rgba(26,86,219,.15);border:1px solid rgba(26,86,219,.3);">📈</div><div class="srv-title">Weekly University Reporting</div><p class="srv-desc">Partner universities receive weekly reports on applications, progress, and conversion metrics.</p></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       COURSE FINDER — search, filters, university cards
+       📝 EDIT: university data → UNIVERSITIES array in JS below
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="courses">
+    <div class="ch-band">
+      <div class="container">
+        <span class="section-label reveal">Course Finder</span>
+        <h2 class="section-title center reveal reveal-d1" style="margin-bottom:10px;">Find Your <span class="accent">Perfect Programme</span></h2>
+        <!-- 📝 EDIT: update count if you add universities -->
+        <p style="color:var(--text-mid);font-size:15px;margin-bottom:34px;" class="reveal reveal-d2">Search 12 verified institutions across 10 countries</p>
+        <div class="s-wrap reveal reveal-d3">
+          <span class="s-icon"><i class="fa fa-search"></i></span>
+          <input type="text" id="uni-search" placeholder="Search universities, countries, subjects...">
+          <button class="s-clear" id="s-clear" onclick="clearUniSearch()">✕</button>
+          <div id="suggestions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="c-body">
+      <div class="f-sidebar">
+        <div class="f-sh">
+          <div><div class="f-sh-t">Filters</div><div class="f-sh-c" id="filter-count">12 found</div></div>
+          <button class="f-reset-btn" id="f-reset-btn" onclick="resetFilters()">Reset</button>
+        </div>
+        <div id="filter-groups"></div>
+        <div class="f-foot">🛡 All institutions verified</div>
+      </div>
+      <div>
+        <div class="r-bar">
+          <div class="r-cnt" id="results-count">Showing <strong>12</strong> results</div>
+          <div class="r-srt">Sorted by: Relevance</div>
+        </div>
+        <div class="u-grid" id="uni-grid"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STUDENT DATABASE PREVIEW — exclusivity teaser with blur overlay
+       📝 EDIT: student data → STUDENTS array in JS below
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="students">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <span class="section-label reveal">Exclusive Access</span>
+        <h2 class="section-title center reveal reveal-d1">Our <span class="accent">Verified Students</span></h2>
+        <p class="section-sub reveal reveal-d2">Universities partner with us to access a pre-screened talent pool not available anywhere else.</p>
+      </div>
+      <div class="st-layout">
+        <div class="st-filters reveal">
+          <div class="sf-h"><div class="sf-ht">Filter Students</div></div>
+          <div class="sf-row"><div class="sf-lbl">GPA / Grade</div><select class="sf-sel"><option>All GPA ranges</option><option>3.8–4.0 Excellent</option><option>3.5–3.7 Very Good</option><option>3.0–3.4 Good</option></select></div>
+          <div class="sf-row"><div class="sf-lbl">Country of Origin</div><select class="sf-sel"><option>All Countries</option><option>Cameroon</option><option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>Senegal</option></select></div>
+          <div class="sf-row"><div class="sf-lbl">Desired Major</div><select class="sf-sel"><option>All Majors</option><option>Business & Management</option><option>Engineering</option><option>Information Technology</option><option>Medicine</option><option>Arts & Humanities</option></select></div>
+          <div class="sf-row"><div class="sf-lbl">Annual Budget</div><select class="sf-sel"><option>All Budgets</option><option>Under $15,000</option><option>$15,000–$30,000</option><option>$30,000–$50,000</option><option>$50,000+</option></select></div>
+          <div style="padding:14px 18px;"><a href="#hero" onclick="scrollToForm()" class="btn btn-primary" style="width:100%;justify-content:center;font-size:12px;">Sign Up to See More →</a></div>
+        </div>
+        <div class="st-grid-wrap reveal reveal-d1">
+          <div class="st-cards" id="st-cards"></div>
+          <div class="db-overlay">
+            <div class="lock-ico">🔒</div>
+            <div class="lock-title">Create an Account to Unlock</div>
+            <p class="lock-desc">Full verified profiles — contacts, academic records, and match scores — are available exclusively to registered university partners.</p>
+            <div style="display:flex;gap:13px;justify-content:center;flex-wrap:wrap;">
+              <a href="#booking" class="btn btn-primary">I'm a University — Book a Call</a>
+              <a href="#hero" onclick="scrollToForm()" class="btn btn-ghost">I'm a Student — Join Free</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       BOOKING SECTION — ORIGINAL CALENDAR WIDGET
+       (restored from betterAbroad.html v1)
+       📝 EDIT: available time slots → SLOTS in JS
+       📝 EDIT: pre-booked dates → BOOKED_SLOTS in JS
+       📝 EDIT: consultant name in .consultant-row below
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="booking">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:40px;">
+        <span class="section-label reveal">Book a Session</span>
+        <h2 class="section-title center reveal reveal-d1">Free <span class="accent">30-Minute</span> Consultation</h2>
+        <!-- 📝 EDIT: booking section subtitle -->
+        <p class="section-sub reveal reveal-d2">Speak directly with an expert. Get a personalized roadmap to your dream university — completely free.</p>
+        <p style="color:var(--crimson); font-weight:700; font-size:15px; margin-top:18px;" class="reveal reveal-d3">⏰ March intake applications closing soon. Book your slot today.</p>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="booking-steps" id="booking-steps">
+        <div class="step-dot active" id="b-step-1">1</div>
+        <div class="step-line" id="b-line-1"></div>
+        <div class="step-dot" id="b-step-2">2</div>
+        <div class="step-line" id="b-line-2"></div>
+        <div class="step-dot" id="b-step-3">3</div>
+        <span style="font-size:13px;color:var(--text-mid);margin-left:8px;" id="b-step-label">Pick a Date</span>
+      </div>
+
+      <!-- STEP 1: Calendar -->
+      <div id="booking-step-calendar" class="booking-grid">
+        <div class="mini-cal">
+          <div class="cal-header">
+            <button class="cal-nav" onclick="calNav(-1)">&#8249;</button>
+            <span class="cal-month" id="cal-month-label">March 2026</span>
+            <button class="cal-nav" onclick="calNav(1)">&#8250;</button>
+          </div>
+          <div class="cal-body">
+            <div class="cal-day-names" id="cal-day-names"></div>
+            <div class="cal-days"      id="cal-days"></div>
+          </div>
+          <div class="cal-footer">🔴 Dot = limited slots &nbsp;|&nbsp; Grey = unavailable</div>
+        </div>
+
+        <div class="date-panel">
+          <div class="date-panel-icon">📅</div>
+          <h3 class="date-panel-title" id="date-panel-title">Select a date to begin</h3>
+          <!-- 📝 EDIT: calendar description -->
+          <p class="date-panel-desc">Sessions available Monday–Friday. Weekends and fully-booked days are greyed out. Red dots = limited slots. All times are in your local timezone.</p>
+          <button id="view-slots-btn" onclick="showSlots()" disabled>View Available Slots →</button>
+          <!-- 📝 EDIT: consultant name + title -->
+          <div class="consultant-row">
+
+            <!-- ═══════════════════════════════════════════════
+                 📸 IMAGE: Consultant photo (optional)
+                 File: testimonial1.webp (back-of-gown photo)
+                 To use a real photo, replace the .c-avatar div below with:
+                 ─────────────────────────────────────────────────────────
+                 <div class="c-avatar" style="padding:0;overflow:hidden;">
+                   <img src="../../../ASSETS/testimonial1.webp" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                 </div>
+                 ═══════════════════════════════════════════════ -->
+            <div class="c-avatar">B</div>
+
+            <div>
+              <!-- 📝 EDIT: consultant name + role -->
+              <div class="c-name">BetterAbroad Consultant</div>
+              <div class="c-title">Expert Counselor · Global Education Specialist</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Slot picker -->
+      <div id="booking-step-slots" class="booking-grid" style="display:none;">
+        <div class="slots-panel">
+          <div class="slots-header">
+            <div>
+              <div class="slots-date-lbl" id="slots-date-lbl">Monday, March 5</div>
+              <div class="slots-avail"    id="slots-avail">Loading slots...</div>
+            </div>
+            <button class="slots-back" onclick="showCalendar()">← Change date</button>
+          </div>
+          <div class="slots-grid" id="slots-grid"></div>
+          <button class="slots-confirm-btn" id="slots-confirm-btn" onclick="showConfirm()" disabled>
+            Confirm slot →
+          </button>
+        </div>
+        <!-- Confirm form (right panel, shown after slot selected) -->
+        <div class="confirm-panel" id="confirm-panel" style="display:none;">
+          <h3 class="confirm-title">Confirm Your Booking</h3>
+          <p class="confirm-meta" id="confirm-meta">📅 Date · 🕐 Time · ⏱ 30 min</p>
+          <div class="f-grp"><label class="f-label" for="b-name">Full Name *</label><input class="f-input" type="text" id="b-name" placeholder="Your full name"></div>
+          <div class="f-grp"><label class="f-label" for="b-email">Email Address *</label><input class="f-input" type="email" id="b-email" placeholder="your@email.com"></div>
+          <div class="bk-error" id="bk-error"></div>
+          <button class="f-submit" id="bk-confirm-btn" onclick="confirmBooking()">🔒 Confirm Booking</button>
+          <!-- 📝 EDIT: note below booking button -->
+          <p class="confirm-note">Rate-limited for security · Meet link generated automatically</p>
+        </div>
+      </div>
+
+      <!-- Booking success -->
+      <div class="booking-success" id="booking-success">
+        <div class="suc-icon" style="margin:0 auto 20px;">✓</div>
+        <h2 style="font-family:var(--font-h);font-size:26px;margin-bottom:10px;">You're Confirmed!</h2>
+        <p style="color:var(--text-mid);font-size:15px;margin-bottom:24px;" id="bk-success-msg">Confirmation sent to your email. Your Google Meet link is ready.</p>
+        <div class="bk-sum" id="bk-summary"></div>
+        <div class="bk-actions">
+          <!-- 📝 EDIT: WhatsApp number -->
+          <a href="https://wa.me/237690380798" target="_blank" class="btn btn-green">💬 WhatsApp Us</a>
+          <button class="btn btn-primary" onclick="resetBooking()">Book Another Session</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- END BOOKING -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FAQ
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="faq">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <span class="section-label reveal">FAQ</span>
+        <h2 class="section-title center reveal reveal-d1">Common <span class="accent">Questions</span></h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-item reveal"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">How long does the visa process take?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Visa processing typically takes 4–12 weeks depending on country. We begin preparations immediately after university acceptance to ensure everything is perfect on the first application.</p></div></div>
+        <div class="faq-item reveal reveal-d1"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">Are your services completely free?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Yes! Our counseling and guidance services are 100% free for students. We earn commissions from partner universities only after successful placement — never from students.</p></div></div>
+        <div class="faq-item reveal reveal-d2"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">What makes your student database exclusive?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Every student is individually verified — we check academic records, language proficiency, financial capacity, and seriousness. This data is not available through any other agency or channel.</p></div></div>
+        <div class="faq-item reveal"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">What are the eligibility requirements?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Generally: completed secondary or bachelor's education, English proficiency (IELTS/TOEFL), minimum academic grades, and a valid passport. We assess your eligibility in the free consultation.</p></div></div>
+        <div class="faq-item reveal reveal-d1"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">How long does the entire process take?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Typically 6–12 months from consultation to departure — university selection (1–2 months), application and offer (2–3 months), visa processing (1–3 months). Start at least 12 months before your desired intake.</p></div></div>
+        <div class="faq-item reveal reveal-d2"><button class="faq-q" onclick="toggleFaq(this)"><span class="faq-qt">How does BetterAbroad work with universities?</span><span class="faq-arrow">⌄</span></button><div class="faq-a"><p>Universities gain access to our verified student pipeline, weekly placement reports, in-country marketing, and dedicated account management on a success-based commission — you only pay when a student enrolls.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+
+  </div><!-- END HERO SECTION WRAPPER -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FOOTER
+       📝 EDIT: CONTACT DETAILS — phone, email, address, social URLs
+       ═══════════════════════════════════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <div class="ft-grid">
+        <div>
+          <div class="ft-logo">Better<span>Abroad</span></div>
+          <p class="ft-desc">Your trusted partner in global education. Connecting ambitious students with top universities worldwide — free of charge.</p>
+          <!-- 📝 EDIT: Social media links -->
+          <div class="ft-socials">
+            <a href="https://facebook.com"  target="_blank" class="ft-soc"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com" target="_blank" class="ft-soc"><i class="fab fa-instagram"></i></a>
+            <a href="https://linkedin.com"  target="_blank" class="ft-soc"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://twitter.com"   target="_blank" class="ft-soc"><i class="fab fa-twitter"></i></a>
+            <a href="https://youtube.com"   target="_blank" class="ft-soc"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div>
+          <div class="ft-col-title">Navigate</div>
+          <div class="ft-links">
+            <a href="#hero"     class="ft-lnk">Home</a>
+            <a href="#services" class="ft-lnk">Services</a>
+            <a href="#courses"  class="ft-lnk">Courses</a>
+            <a href="#students" class="ft-lnk">For Universities</a>
+            <a href="#booking"  class="ft-lnk">Book a Call</a>
+            <a href="#faq"      class="ft-lnk">FAQ</a>
+          </div>
+        </div>
+        <div>
+          <div class="ft-col-title">Destinations</div>
+          <div class="ft-links">
+            <span class="ft-lnk">🇬🇧 United Kingdom</span>
+            <span class="ft-lnk">🇺🇸 United States</span>
+            <span class="ft-lnk">🇨🇦 Canada</span>
+            <span class="ft-lnk">🇦🇺 Australia</span>
+            <span class="ft-lnk">🇮🇪 Ireland</span>
+            <span class="ft-lnk">🇩🇪 Germany</span>
+            <span class="ft-lnk">🇨🇭 Switzerland</span>
+          </div>
+        </div>
+        <div>
+          <div class="ft-col-title">Contact</div>
+          <div class="ft-links">
+            <!-- 📝 EDIT: YOUR phone, email, address, hours -->
+            <span class="ft-lnk">📞 (+237) 690-380-798</span>
+            <span class="ft-lnk">✉️ tchuekrostand@gmail.com</span>
+            <span class="ft-lnk">📍 6011 Carref Mballa, Yaoundé</span>
+            <span class="ft-lnk">🕐 Mon–Sat, 8am–7pm WAT</span>
+          </div>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <!-- 📝 EDIT: copyright text -->
+        <p class="ft-copy">© 2026 BetterAbroad. All rights reserved.</p>
+        <div class="ft-legal">
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
+          <span>Cookie Policy</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       JAVASCRIPT
+       ═══════════════════════════════════════════════════════════
+       SECTIONS:
+       A. UNIVERSITY DATABASE    ← 📝 EDIT: add/remove universities
+       B. STUDENT DATABASE       ← 📝 EDIT: add/remove students
+       C. BOOKING SLOTS CONFIG   ← 📝 EDIT: time slots + booked dates
+       D. Hero Form
+       E. Confetti
+       F. Marquee
+       G. Course Finder
+       H. Student Cards
+       I. Booking (Calendar + Slots + Confirm)
+       J. FAQ
+       K. Scroll Reveal
+       L. Navbar
+       ═══════════════════════════════════════════════════════════ -->
+  <script>
+
+  /* ── A. UNIVERSITY DATABASE ─────────────────────────────────
+     📝 EDIT: copy/modify objects to add universities
+     ──────────────────────────────────────────────────────────── */
+  const UNIVERSITIES = [
+    { id:1,  name:"University of Manchester",     country:"UK",          city:"Manchester",    subject:"Business & Management",  intake:"September", tuition:"£22,000",    flag:"🇬🇧", color:"#660099", acronym:"UoM"  },
+    { id:2,  name:"University of Toronto",        country:"Canada",      city:"Toronto",       subject:"Engineering",            intake:"September", tuition:"CA$32,000",  flag:"🇨🇦", color:"#002A5C", acronym:"UofT" },
+    { id:3,  name:"University of Sydney",         country:"Australia",   city:"Sydney",        subject:"Medicine & Healthcare",  intake:"March",     tuition:"AU$42,000",  flag:"🇦🇺", color:"#003087", acronym:"USyd" },
+    { id:4,  name:"California ETEE College",      country:"USA",         city:"San Francisco", subject:"Information Technology", intake:"September", tuition:"$14,200",    flag:"🇺🇸", color:"#1a3a6b", acronym:"CEC"  },
+    { id:5,  name:"Alpine Swiss Business School", country:"Switzerland", city:"Geneva",        subject:"Finance & Economics",    intake:"February",  tuition:"CHF 22,500", flag:"🇨🇭", color:"#c8102e", acronym:"ASBS" },
+    { id:6,  name:"SEDA College",                 country:"Ireland",     city:"Dublin",        subject:"Arts & Humanities",      intake:"January",   tuition:"€9,800",     flag:"🇮🇪", color:"#169b62", acronym:"SEDA" },
+    { id:7,  name:"TU Berlin",                    country:"Germany",     city:"Berlin",        subject:"Engineering",            intake:"October",   tuition:"€1,500",     flag:"🇩🇪", color:"#d62828", acronym:"TUB"  },
+    { id:8,  name:"NUS Singapore",                country:"Singapore",   city:"Singapore",     subject:"Information Technology", intake:"August",    tuition:"SG$31,000",  flag:"🇸🇬", color:"#003d7c", acronym:"NUS"  },
+    { id:9,  name:"University of Auckland",       country:"New Zealand", city:"Auckland",      subject:"Business & Management",  intake:"February",  tuition:"NZ$28,000",  flag:"🇳🇿", color:"#003893", acronym:"UoA"  },
+    { id:10, name:"Sciences Po",                  country:"France",      city:"Paris",         subject:"Arts & Humanities",      intake:"September", tuition:"€14,000",    flag:"🇫🇷", color:"#0055a4", acronym:"ScPo" },
+    { id:11, name:"McGill University",            country:"Canada",      city:"Montréal",      subject:"Medicine & Healthcare",  intake:"September", tuition:"CA$22,000",  flag:"🇨🇦", color:"#ed1b2f", acronym:"McGi" },
+    { id:12, name:"Delft University of Tech",     country:"Netherlands", city:"Delft",         subject:"Engineering",            intake:"February",  tuition:"€18,750",    flag:"🇳🇱", color:"#003da5", acronym:"TUD"  },
+  ];
+
+  /* ── B. STUDENT DATABASE ────────────────────────────────────
+     First 3 show clearly; rest are blurred under the lock overlay
+     ──────────────────────────────────────────────────────────── */
+  const STUDENTS = [
+    { name:"Amara Diallo",     country:"Senegal 🇸🇳",  major:"Business Analytics",   gpa:"3.91", budget:"$28k/yr", initials:"AD", color:"linear-gradient(135deg,#1a56db,#06b6d4)" },
+    { name:"Kofi Mensah",      country:"Ghana 🇬🇭",     major:"Computer Engineering", gpa:"3.85", budget:"$32k/yr", initials:"KM", color:"linear-gradient(135deg,#0a6640,#16a34a)" },
+    { name:"Fatima Nkemdirim", country:"Nigeria 🇳🇬",   major:"Medicine",             gpa:"3.97", budget:"$45k/yr", initials:"FN", color:"linear-gradient(135deg,#7c3aed,#a855f7)" },
+    { name:"Jean-Paul Mbarga", country:"Cameroon 🇨🇲",  major:"Finance & Economics",  gpa:"3.78", budget:"$24k/yr", initials:"JM", color:"linear-gradient(135deg,#c8102e,#ef4444)" },
+    { name:"Priya Osei",       country:"Ghana 🇬🇭",     major:"Information Systems",  gpa:"3.82", budget:"$30k/yr", initials:"PO", color:"linear-gradient(135deg,#0055a4,#2563eb)" },
+    { name:"David Kimura",     country:"Kenya 🇰🇪",     major:"Mechanical Eng.",      gpa:"3.90", budget:"$38k/yr", initials:"DK", color:"linear-gradient(135deg,#169b62,#16a34a)" },
+    { name:"Aisha Coulibaly",  country:"Senegal 🇸🇳",  major:"International Bus.",   gpa:"3.73", budget:"$22k/yr", initials:"AC", color:"linear-gradient(135deg,#d97706,#f59e0b)" },
+    { name:"Emmanuel Adeyemi", country:"Nigeria 🇳🇬",   major:"Data Science",         gpa:"3.88", budget:"$26k/yr", initials:"EA", color:"linear-gradient(135deg,#0f766e,#14b8a6)" },
+  ];
+
+  /* ── C. BOOKING CONFIG ──────────────────────────────────────
+     📝 EDIT: Time slots and pre-booked slot indices
+     ──────────────────────────────────────────────────────────── */
+  const SLOTS = [
+    "09:00 AM","09:30 AM","10:00 AM","10:30 AM",
+    "11:00 AM","11:30 AM",
+    "02:00 PM","02:30 PM","03:00 PM","03:30 PM","04:00 PM"
+  ];
+  /* 📝 EDIT: Add dates like "YYYY-MM-DD": [slot_index, ...] */
+  const BOOKED_SLOTS = {
+    "2026-03-05": [1, 3, 5],
+    "2026-03-06": [0, 2, 6],
+    "2026-03-10": [0,1,2,3,4,5,6,7,8,9,10],
+    "2026-03-12": [4, 5, 9],
+  };
+
+  /* ── D. HERO FORM ────────────────────────────────────────── */
+  let selectedRole = 'student';
+  function setRole(r) {
+    selectedRole = r;
+    document.getElementById('role-student').className = 'role-btn' + (r==='student'?' active':'');
+    document.getElementById('role-uni').className     = 'role-btn' + (r==='university'?' active':'');
+  }
+  function scrollToForm() {
+    document.getElementById('hero-form').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  function heroSubmit() {
+    const name  = document.getElementById('h-name').value.trim();
+    const email = document.getElementById('h-email').value.trim();
+    const phone = document.getElementById('h-phone').value.trim();
+    const password = document.getElementById('h-pass').value;
+    const flash = id => { document.getElementById(id).style.borderColor='#e02441'; setTimeout(()=>document.getElementById(id).style.borderColor='',1600); };
+    if (name.length < 2)  { flash('h-name');  return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { flash('h-email'); return; }
+    if (phone.length < 7) { flash('h-phone'); return; }
+    if (password.length < 8) { flash('h-pass'); return; }
+    
+    const btn = event?.target;
+    if(btn) { btn.disabled = true; btn.textContent = '⏳ Creating account...'; }
+    
+    // Call register.php API
+    fetch('../../DATABASE/register.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: name,
+        email: email,
+        phone: phone,
+        role: selectedRole,
+        password: password
+      }),
+      credentials: 'include' // Important: send cookies for session
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success) {
+        // Store role for later use
+        window.userRole = data.role;
+        window.userId = data.userId;
+        document.getElementById('hero-form').style.display    = 'none';
+        document.getElementById('hero-success').style.display = 'block';
+        document.getElementById('success-name').textContent   = name.split(' ')[0];
+        document.getElementById('success-email').textContent  = email;
+        launchConfetti();
+        // Auto-redirect to registration form after 2 seconds
+        setTimeout(() => showRegistrationForm(), 500);
+      } else {
+        alert('Error: ' + (data.error || 'Registration failed'));
+        if(btn) { btn.disabled = false; btn.textContent = 'Submit Free Application ✓'; }
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Connection error. Please check if the backend is running.');
+      if(btn) { btn.disabled = false; btn.textContent = 'Submit Free Application ✓'; }
+    });
+  }
+  function heroReset() {
+    document.getElementById('hero-success').style.display = 'none';
+    document.getElementById('hero-form').style.display    = 'block';
+    ['h-name','h-email','h-phone','h-pass'].forEach(id=>document.getElementById(id).value='');
+  }
+  
+  // Show registration form after signup
+ // ── NAVIGATION TO market.html ─────────────────────────────
+function showRegistrationForm() {
+  // Pass role to market.html via sessionStorage
+  sessionStorage.setItem('ba_role', window.userRole || selectedRole || 'student');
+  window.location.href = 'market.html';
+}
+
+function accessMarketplace() {
+  window.location.href = 'market.html';
+}
+
+function goBackToProfile() {
+  window.location.href = 'market.html';
+}
+
+function logout() {
+  fetch('../../DATABASE/logout.php', { method: 'POST', credentials: 'include' })
+    .then(() => {
+      sessionStorage.removeItem('ba_role');
+      window.location.reload();
+    })
+    .catch(() => window.location.reload());
+}
+
+function checkSession() {
+  fetch('../../DATABASE/me.php', { method: 'GET', credentials: 'include' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && (data.userId || data.user?.id)) {
+        // Already logged in — go straight to market
+        window.location.href = 'market.html';
+      }
+      // else: stay on landing page (do nothing)
+    })
+    .catch(() => {}); // on error just stay on landing page
+}
+  
+  // Handle registration form submission
+  function submitRegistration() {
+    const fullName = document.getElementById('reg-full-name').value.trim();
+    const dob = document.getElementById('reg-dob').value;
+    const nationality = document.getElementById('reg-nationality').value.trim();
+    const gpa = document.getElementById('reg-gpa').value.trim();
+    const major = document.getElementById('reg-major').value.trim();
+    const budget = document.getElementById('reg-budget').value.trim();
+    const description = document.getElementById('reg-description').value.trim();
+    
+    if(!fullName || !dob || !nationality || !gpa || !major || !budget) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    const btn = event?.target;
+    if(btn) { btn.disabled = true; btn.textContent = '⏳ Saving profile...'; }
+    
+    fetch('../../DATABASE/save.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: fullName,
+        dob: dob,
+        nationality: nationality,
+        gpa: parseFloat(gpa),
+        major: major,
+        budget: budget,
+        description: description
+      }),
+      credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success) {
+        alert('Profile saved! Now you can upload documents.');
+        document.getElementById('registration-form-wrapper').style.display = 'none';
+        document.getElementById('profile-wrapper').style.display = 'block';
+        loadProfilePage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        alert('Error: ' + (data.error || 'Failed to save profile'));
+        if(btn) { btn.disabled = false; btn.textContent = 'Complete Registration →'; }
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Connection error');
+      if(btn) { btn.disabled = false; btn.textContent = 'Complete Registration →'; }
+    });
+  }
+  
+  // Load and display profile page
+  function loadProfilePage() {
+    fetch('../../DATABASE/me.php', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success && data.profile) {
+        const profile = data.profile;
+        document.getElementById('profile-name').textContent = profile.full_name || data.email || 'User';
+        document.getElementById('profile-email').textContent = data.email || '';
+        document.getElementById('profile-role').textContent = (data.role === 'student' ? '🎓 Student' : '🏛️ University');
+        
+        // Show marketplace access
+        document.getElementById('marketplace-btn').style.display = 'inline-block';
+      } else {
+        alert('Session expired. Please sign up again.');
+        location.reload();
+      }
+    })
+    .catch(err => {
+      console.error('Load profile error:', err);
+      alert('Error loading profile: ' + err.message);
+    });
+  }
+  
+  // Access marketplace
+  function accessMarketplace() {
+    document.getElementById('profile-wrapper').style.display = 'none';
+    document.getElementById('marketplace-wrapper').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // Logout function
+  function logout() {
+    fetch('../../DATABASE/logout.php', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    .then(() => {
+      window.userRole = null;
+      window.userId = null;
+      document.getElementById('hero').style.display = 'flex';
+      document.getElementById('hero-section-wrapper').style.display = 'block';
+      document.getElementById('registration-form-wrapper').style.display = 'none';
+      document.getElementById('profile-wrapper').style.display = 'none';
+      document.getElementById('marketplace-wrapper').style.display = 'none';
+      document.getElementById('hero-form').style.display = 'block';
+      document.getElementById('hero-success').style.display = 'none';
+      ['h-name','h-email','h-phone','h-pass'].forEach(id => document.getElementById(id).value = '');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(err => console.error(err));
+  }
+  
+  // Check session on page load
+  function checkSession() {
+    fetch('../../DATABASE/me.php', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success && (data.userId || data.user?.id)) {
+        window.userRole = data.role || data.user?.role;
+        window.userId = data.userId || data.user?.id;
+        document.getElementById('hero').style.display = 'none';
+        document.getElementById('hero-section-wrapper').style.display = 'none';
+        document.getElementById('registration-form-wrapper').style.display = 'none';
+        document.getElementById('profile-wrapper').style.display = 'block';
+        loadProfilePage();
+      } else {
+        document.getElementById('hero').style.display = 'flex';
+        document.getElementById('hero-section-wrapper').style.display = 'block';
+        document.getElementById('registration-form-wrapper').style.display = 'none';
+        document.getElementById('profile-wrapper').style.display = 'none';
+        document.getElementById('marketplace-wrapper').style.display = 'none';
+      }
+    })
+    .catch(err => {
+      document.getElementById('hero').style.display = 'flex';
+      document.getElementById('hero-section-wrapper').style.display = 'block';
+    });
+  }
+
+  /* ── E. CONFETTI ─────────────────────────────────────────── */
+  function launchConfetti() {
+    const cv = document.getElementById('confetti-canvas');
+    const cx = cv.getContext('2d');
+    cv.width = cv.offsetWidth; cv.height = cv.offsetHeight;
+    const pal = ['#1a56db','#06b6d4','#e02441','#FBBF24','#4ade80','#a855f7'];
+    const pts = Array.from({length:130}, ()=>({
+      x:cv.width*(0.15+Math.random()*0.7), y:-10,
+      r:Math.random()*7+2, color:pal[Math.floor(Math.random()*pal.length)],
+      vx:(Math.random()-.5)*5, vy:Math.random()*5+1.5,
+      rot:Math.random()*360, rv:(Math.random()-.5)*7,
+      sh:Math.random()>.5?'r':'c'
+    }));
+    let fr=0;
+    (function draw(){
+      cx.clearRect(0,0,cv.width,cv.height);
+      pts.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.rot+=p.rv;
+        cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180);
+        cx.fillStyle=p.color; cx.globalAlpha=Math.max(0,1-fr/140);
+        if(p.sh==='r') cx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+        else { cx.beginPath(); cx.arc(0,0,p.r,0,Math.PI*2); cx.fill(); }
+        cx.restore();
+      });
+      fr++;
+      if(fr<160) requestAnimationFrame(draw);
+      else cx.clearRect(0,0,cv.width,cv.height);
+    })();
+  }
+
+  /* ── F. MARQUEE ──────────────────────────────────────────── */
+  (function(){
+    const t = document.getElementById('mq-track');
+    t.innerHTML += t.innerHTML;
+    t.style.animation = `marqueeScroll ${t.scrollWidth/88}s linear infinite`;
+  })();
+
+  /* ── G. COURSE FINDER ────────────────────────────────────── */
+  let activeF = {country:'All Countries',subject:'All Subjects',intake:'All Intakes'};
+  let uniQuery='', debT=null;
+
+  function buildFilterUI() {
+    const cs = ['All Countries',...new Set(UNIVERSITIES.map(u=>u.country))];
+    const ss = ['All Subjects', ...new Set(UNIVERSITIES.map(u=>u.subject))];
+    const is = ['All Intakes',  ...new Set(UNIVERSITIES.map(u=>u.intake))];
+    document.getElementById('filter-groups').innerHTML = [
+      {label:'Country',     opts:cs, key:'country'},
+      {label:'Subject Area',opts:ss, key:'subject'},
+      {label:'Intake Month',opts:is, key:'intake'},
+    ].map(g=>`
+      <div class="f-grp-blk">
+        <div class="f-grp-lbl">${g.label}</div>
+        <div class="f-opts">
+          ${g.opts.map(o=>`<button class="f-opt-btn ${activeF[g.key]===o?'active':''}" onclick="setF('${g.key}','${o}')">${o}</button>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+  function setF(k,v){ activeF[k]=v; buildFilterUI(); renderUnis(true); updateResetBtn(); }
+  function resetFilters(){
+    activeF={country:'All Countries',subject:'All Subjects',intake:'All Intakes'};
+    uniQuery=''; document.getElementById('uni-search').value='';
+    document.getElementById('s-clear').style.display='none';
+    buildFilterUI(); renderUnis(true); updateResetBtn();
+  }
+  function updateResetBtn(){
+    const dirty=Object.values(activeF).some(v=>!v.startsWith('All'))||uniQuery;
+    document.getElementById('f-reset-btn').style.display=dirty?'block':'none';
+  }
+  function getFiltered(){
+    return UNIVERSITIES.filter(u=>{
+      const q=uniQuery.toLowerCase();
+      return (!q||[u.name,u.country,u.city,u.subject].some(s=>s.toLowerCase().includes(q)))
+        && (activeF.country==='All Countries'||u.country===activeF.country)
+        && (activeF.subject==='All Subjects' ||u.subject===activeF.subject)
+        && (activeF.intake ==='All Intakes'  ||u.intake ===activeF.intake);
+    });
+  }
+  function renderUnis(skeleton=false){
+    const g=document.getElementById('uni-grid');
+    if(skeleton){
+      g.innerHTML=Array.from({length:6}).map(()=>`
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;">
+          <div class="shimmer" style="height:4px;"></div>
+          <div style="padding:20px 18px;">
+            <div style="display:flex;gap:13px;margin-bottom:15px;align-items:center;">
+              <div class="shimmer" style="width:44px;height:44px;border-radius:9px;flex-shrink:0;"></div>
+              <div style="flex:1;"><div class="shimmer" style="height:11px;margin-bottom:7px;width:85%;"></div><div class="shimmer" style="height:9px;width:55%;"></div></div>
+            </div>
+            <div class="shimmer" style="height:9px;margin-bottom:7px;width:60%;"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:14px;">
+              <div class="shimmer" style="width:75px;height:24px;border-radius:20px;"></div>
+              <div class="shimmer" style="width:85px;height:32px;border-radius:7px;"></div>
+            </div>
+          </div>
+        </div>`).join('');
+      setTimeout(renderActual, 580);
+    } else renderActual();
+  }
+  function renderActual(){
+    const res=getFiltered(), g=document.getElementById('uni-grid');
+    document.getElementById('filter-count').textContent=res.length+' found';
+    document.getElementById('results-count').innerHTML=
+      `Showing <strong>${res.length}</strong> results${uniQuery?` for "<strong style="color:var(--blue-light)">${uniQuery}</strong>"`:'' }`;
+    if(!res.length){
+      g.innerHTML=`<div class="no-res"><div class="no-res-icon">🎓</div><h3 style="color:var(--text-mid);margin-bottom:8px;font-family:var(--font-h);">No institutions found</h3><p style="margin-bottom:16px;">Try adjusting filters</p><button class="btn btn-ghost" onclick="resetFilters()">Clear Everything</button></div>`;
+      return;
+    }
+    g.innerHTML=res.map((u,i)=>`
+      <div class="u-card" style="animation-delay:${i*55}ms;"
+        onmouseenter="this.style.borderColor='${u.color}55';this.querySelector('.u-apply').style.background='${u.color}';this.querySelector('.u-apply').style.color='#fff';this.querySelector('.u-apply').style.borderColor='${u.color}';"
+        onmouseleave="this.style.borderColor='rgba(255,255,255,.08)';this.querySelector('.u-apply').style.background='rgba(255,255,255,.06)';this.querySelector('.u-apply').style.color='var(--text-mid)';this.querySelector('.u-apply').style.borderColor='rgba(255,255,255,.08)';">
+        <div class="u-bar" style="background:linear-gradient(90deg,${u.color},${u.color}66);"></div>
+        <div class="u-body">
+          <div class="u-head">
+            <div class="u-logo" style="background:linear-gradient(135deg,${u.color},${u.color}bb);box-shadow:0 4px 14px ${u.color}44;">${u.acronym}</div>
+            <div><div class="u-name">${u.name}</div><div class="u-loc">${u.flag} ${u.city}, ${u.country}</div></div>
+          </div>
+          <div class="u-tags">
+            <span class="u-pill" style="background:${u.color}20;color:${u.color};border:1px solid ${u.color}40;">${u.subject}</span>
+            <span class="u-pill" style="background:rgba(255,255,255,.05);color:var(--text-mid);border:1px solid rgba(255,255,255,.1);">🗓 ${u.intake}</span>
+          </div>
+          <div class="u-foot">
+            <div><div class="u-tl">Annual Tuition</div><div class="u-tv">${u.tuition}</div></div>
+            <button class="u-apply" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">Apply Free →</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* Search input */
+  const uniSrch = document.getElementById('uni-search');
+  const suggEl  = document.getElementById('suggestions');
+  uniSrch.addEventListener('input', function(){
+    const v=this.value.trim(); uniQuery=v;
+    document.getElementById('s-clear').style.display=v?'flex':'none';
+    clearTimeout(debT);
+    debT=setTimeout(()=>{ updateResetBtn(); renderUnis(true); },300);
+    if(v.length<2){ suggEl.style.display='none'; return; }
+    const m=UNIVERSITIES.filter(u=>u.name.toLowerCase().includes(v.toLowerCase())||u.country.toLowerCase().includes(v.toLowerCase())).slice(0,5);
+    if(!m.length){ suggEl.style.display='none'; return; }
+    suggEl.innerHTML=m.map(u=>`
+      <div class="sugg-item" onclick="pickSugg('${u.name.replace(/'/g,"\\'")}')">
+        <div class="sugg-logo" style="background:linear-gradient(135deg,${u.color},${u.color}aa);">${u.acronym}</div>
+        <div><div class="sugg-n">${u.name}</div><div class="sugg-m">${u.flag} ${u.city} · ${u.subject}</div></div>
+        <div class="sugg-t">${u.tuition}</div>
+      </div>`).join('');
+    suggEl.style.display='block';
+  });
+  function pickSugg(name){ uniSrch.value=name; uniQuery=name; suggEl.style.display='none'; document.getElementById('s-clear').style.display='flex'; updateResetBtn(); renderUnis(true); }
+  function clearUniSearch(){ uniSrch.value=''; uniQuery=''; suggEl.style.display='none'; document.getElementById('s-clear').style.display='none'; updateResetBtn(); renderUnis(true); }
+  document.addEventListener('click', e=>{ if(!e.target.closest('.s-wrap')) suggEl.style.display='none'; });
+  buildFilterUI(); renderUnis(true);
+
+  /* ── H. STUDENT CARDS ────────────────────────────────────── */
+  (function(){
+    document.getElementById('st-cards').innerHTML=STUDENTS.map((s,i)=>`
+      <div class="st-card ${i<3?'vis':'locked'}">
+        <div class="st-av" style="background:${s.color};">${s.initials}</div>
+        <div class="st-name">${s.name}</div>
+        <div class="st-info">${s.country}<br>${s.major}</div>
+        <div class="st-gpa">GPA ${s.gpa}</div>
+        <div style="font-size:11px;color:var(--text-lo);margin-top:7px;">Budget: ${s.budget}</div>
+      </div>`).join('');
+  })();
+
+  /* ── I. BOOKING CALENDAR + SLOTS ────────────────────────── */
+  const TODAY  = new Date();
+  let calY     = TODAY.getFullYear();
+  let calM     = TODAY.getMonth();
+  let selDate  = null, selSlot = null;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  function renderCal(){
+    document.getElementById('cal-month-label').textContent = MONTHS[calM]+' '+calY;
+    document.getElementById('cal-day-names').innerHTML = DAYS.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+    const first=new Date(calY,calM,1).getDay(), total=new Date(calY,calM+1,0).getDate();
+    let html='';
+    for(let i=0;i<first;i++) html+='<div></div>';
+    for(let d=1;d<=total;d++){
+      const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dObj=new Date(calY,calM,d);
+      const isPast=dObj<new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+      const isWknd=dObj.getDay()===0||dObj.getDay()===6;
+      const bk=(BOOKED_SLOTS[ds]||[]).length;
+      const full=bk>=SLOTS.length;
+      const dis=isPast||isWknd||full;
+      const isSel=ds===selDate;
+      const isToday=d===TODAY.getDate()&&calM===TODAY.getMonth()&&calY===TODAY.getFullYear();
+      html+=`<button class="cal-day ${isSel?'selected':''} ${isToday&&!isSel?'today':''}"
+        ${dis?'disabled':''} onclick="pickDate('${ds}',${d})">${d}${(!dis&&bk>0)?'<div class="dot"></div>':''}</button>`;
+    }
+    document.getElementById('cal-days').innerHTML=html;
+  }
+  function calNav(dir){
+    calM+=dir;
+    if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;}
+    renderCal();
+  }
+  function pickDate(ds,d){
+    selDate=ds; selSlot=null; renderCal();
+    const dObj=new Date(calY,calM,d);
+    const lbl=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dObj.getDay()]+', '+MONTHS[calM]+' '+d;
+    document.getElementById('date-panel-title').textContent='Selected: '+lbl;
+    const btn=document.getElementById('view-slots-btn');
+    btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
+  }
+  renderCal();
+
+  function showSlots(){
+    if(!selDate) return;
+    document.getElementById('booking-step-calendar').style.display='none';
+    document.getElementById('booking-step-slots').style.display='grid';
+    ['b-step-1'].forEach(id=>{document.getElementById(id).classList.remove('active');document.getElementById(id).classList.add('done');document.getElementById(id).textContent='✓';});
+    document.getElementById('b-line-1').classList.add('done');
+    document.getElementById('b-step-2').classList.add('active');
+    document.getElementById('b-step-label').textContent='Choose a Time';
+    renderSlots();
+  }
+  function showCalendar(){
+    document.getElementById('booking-step-slots').style.display='none';
+    document.getElementById('booking-step-calendar').style.display='grid';
+    document.getElementById('confirm-panel').style.display='none';
+    document.getElementById('b-step-1').classList.add('active'); document.getElementById('b-step-1').classList.remove('done'); document.getElementById('b-step-1').textContent='1';
+    document.getElementById('b-line-1').classList.remove('done');
+    document.getElementById('b-step-2').classList.remove('active');
+    document.getElementById('b-step-label').textContent='Pick a Date';
+    selSlot=null;
+  }
+  function renderSlots(){
+    const [y,m,d]=selDate.split('-');
+    const lbl=MONTHS[parseInt(m)-1]+' '+parseInt(d)+', '+y;
+    const bkIdx=BOOKED_SLOTS[selDate]||[];
+    const avail=SLOTS.length-bkIdx.length;
+    document.getElementById('slots-date-lbl').textContent=lbl;
+    document.getElementById('slots-avail').textContent=avail+' slots available · 30 min each';
+    document.getElementById('slots-grid').innerHTML=SLOTS.map((sl,i)=>{
+      const bk=bkIdx.includes(i), sel=sl===selSlot;
+      return `<button class="slot-btn ${sel?'selected':''}" ${bk?'disabled':''} onclick="pickSlot('${sl}')">${sl}${bk?' ✗':''}</button>`;
+    }).join('');
+    updateConfirmBtn();
+  }
+  function pickSlot(sl){ selSlot=sl; renderSlots(); updateConfirmBtn(); }
+  function updateConfirmBtn(){
+    const btn=document.getElementById('slots-confirm-btn');
+    btn.disabled=!selSlot;
+    btn.textContent=selSlot?`Confirm · ${selSlot} →`:'Select a slot →';
+  }
+  function showConfirm(){
+    if(!selSlot) return;
+    document.getElementById('confirm-panel').style.display='block';
+    document.getElementById('confirm-panel').style.animation='fadeUp .3s ease';
+    const [y,m,d]=selDate.split('-');
+    document.getElementById('confirm-meta').textContent=`📅 ${MONTHS[parseInt(m)-1]} ${parseInt(d)}, ${y}   ·   🕐 ${selSlot}   ·   ⏱ 30 min`;
+    document.getElementById('b-step-2').classList.remove('active'); document.getElementById('b-step-2').classList.add('done'); document.getElementById('b-step-2').textContent='✓';
+    document.getElementById('b-line-2').classList.add('done');
+    document.getElementById('b-step-3').classList.add('active');
+    document.getElementById('b-step-label').textContent='Confirm';
+  }
+  let bkAttempts=0;
+  function confirmBooking(){
+    const name=document.getElementById('b-name').value.trim();
+    const email=document.getElementById('b-email').value.trim();
+    const err=document.getElementById('bk-error');
+    err.style.display='none';
+    if(!name||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Please enter a valid name and email.'; err.style.display='block'; return; }
+    if(bkAttempts>=3){ err.textContent='⚠️ Too many attempts. Please wait.'; err.style.display='block'; return; }
+    bkAttempts++;
+    const btn=document.getElementById('bk-confirm-btn');
+    btn.textContent='⏳ Booking...'; btn.disabled=true;
+    setTimeout(()=>{
+      const si=SLOTS.indexOf(selSlot);
+      if(!BOOKED_SLOTS[selDate]) BOOKED_SLOTS[selDate]=[];
+      BOOKED_SLOTS[selDate].push(si);
+      const seg=n=>Array.from({length:n},()=>'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random()*26)]).join('');
+      const meet=`https://meet.google.com/${seg(3)}-${seg(4)}-${seg(3)}`;
+      const id='BA-'+Math.random().toString(36).substr(2,8).toUpperCase();
+      const [y,m,d]=selDate.split('-');
+      const dl=MONTHS[parseInt(m)-1]+' '+parseInt(d)+', '+y;
+      document.getElementById('booking-step-slots').style.display='none';
+      document.getElementById('booking-steps').style.display='none';
+      document.getElementById('booking-success').style.display='block';
+      document.getElementById('bk-success-msg').innerHTML=`Confirmation sent to <strong>${email}</strong>. Your Google Meet link is ready below.`;
+      document.getElementById('bk-summary').innerHTML=[
+        ['📋 Booking ID',id],['📅 Date',dl],['🕐 Time',selSlot+' (30 min)'],
+        ['👤 Name',name],['🎥 Meeting Link',`<a href="${meet}" target="_blank" style="color:var(--blue-light);">Join Google Meet →</a>`]
+      ].map(([k,v])=>`<div class="bk-row"><span class="bk-key">${k}</span><span class="bk-val">${v}</span></div>`).join('');
+    },700);
+  }
+  function resetBooking(){
+    selDate=null; selSlot=null;
+    document.getElementById('booking-success').style.display='none';
+    document.getElementById('booking-steps').style.display='flex';
+    document.getElementById('booking-step-calendar').style.display='grid';
+    document.getElementById('booking-step-slots').style.display='none';
+    document.getElementById('confirm-panel').style.display='none';
+    ['b-name','b-email'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('date-panel-title').textContent='Select a date to begin';
+    document.getElementById('view-slots-btn').disabled=true;
+    ['b-step-1','b-step-2','b-step-3'].forEach((id,i)=>{
+      document.getElementById(id).className='step-dot'; document.getElementById(id).textContent=i+1;
+    });
+    document.getElementById('b-line-1').classList.remove('done');
+    document.getElementById('b-line-2').classList.remove('done');
+    document.getElementById('b-step-1').classList.add('active');
+    document.getElementById('b-step-label').textContent='Pick a Date';
+    renderCal();
+  }
+
+  /* ── J. FAQ ──────────────────────────────────────────────── */
+  function toggleFaq(btn){
+    const item=btn.parentElement, open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
+    if(!open) item.classList.add('open');
+  }
+
+  /* ── K. SCROLL REVEAL ────────────────────────────────────── */
+  const revObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); revObs.unobserve(e.target); } });
+  },{threshold:.12,rootMargin:'0px 0px -36px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+
+  /* ── L. NAVBAR + SCROLL SPY ──────────────────────────────── */
+  const nb=document.getElementById('navbar');
+  window.addEventListener('scroll',()=>{ nb.classList.toggle('scrolled',window.scrollY>50); },{passive:true});
+
+  const spySects=['hero','success','services','courses','students','booking','faq'];
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+        const l=document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if(l) l.classList.add('active');
+      }
+    });
+  },{threshold:.35}).observe && spySects.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting){ document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); const l=document.querySelector(`.nav-link[href="#${e.target.id}"]`); if(l)l.classList.add('active'); }}); },{threshold:.35}).observe(el); }
+  });
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href'); if(id==='#') return;
+      const t=document.querySelector(id);
+      if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+    });
+  });
+
+  /* Mobile nav */
+  function toggleMobileNav(){
+    const ul=document.querySelector('nav ul'); if(!ul) return;
+    ul.style.display=ul.style.display==='flex'?'none':'flex';
+    if(ul.style.display==='flex') ul.style.cssText='display:flex;flex-direction:column;position:fixed;top:68px;left:0;right:0;background:rgba(7,17,31,.97);padding:16px 28px;gap:4px;backdrop-filter:blur(22px);z-index:999;border-bottom:1px solid rgba(255,255,255,.08);';
+  }
+  
+  /* ── ADDITIONAL FUNCTIONS FOR AUTH FLOW ────────────────── */
+  
+  // Upload document
+  function uploadDocument() {
+    const fileInput = document.getElementById('doc-upload');
+    if(!fileInput.files.length) return;
+    
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('doc_type', 'transcript'); // default - could be made dynamic
+    
+    const btn = event?.target.parentElement;
+    if(btn) btn.style.opacity = '0.6';
+    
+    fetch('../../DATABASE/upload.php', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success) {
+        alert('Document uploaded successfully!');
+        document.getElementById('marketplace-btn').style.display = 'inline-block';
+        fileInput.value = '';
+      } else {
+        alert('Error: ' + (data.message || 'Upload failed'));
+      }
+      if(btn) btn.style.opacity = '1';
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Upload error');
+      if(btn) btn.style.opacity = '1';
+    });
+  }
+  
+  // Go back to profile from marketplace
+  function goBackToProfile() {
+    document.getElementById('marketplace-wrapper').style.display = 'none';
+    document.getElementById('profile-wrapper').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // Render universities in marketplace
+  function renderMarketplaceUnis() {
+    const grid = document.getElementById('marketplace-uni-grid');
+    if(!grid) return;
+    
+    grid.innerHTML = UNIVERSITIES.map((u, i) => `
+      <div class="u-card" style="animation-delay:${i*55}ms;"
+        onmouseenter="this.style.borderColor='${u.color}55';this.querySelector('.u-apply').style.background='${u.color}';this.querySelector('.u-apply').style.color='#fff';this.querySelector('.u-apply').style.borderColor='${u.color}';"
+        onmouseleave="this.style.borderColor='rgba(255,255,255,.08)';this.querySelector('.u-apply').style.background='rgba(255,255,255,.06)';this.querySelector('.u-apply').style.color='var(--text-mid)';this.querySelector('.u-apply').style.borderColor='rgba(255,255,255,.08)';">
+        <div class="u-bar" style="background:linear-gradient(90deg,${u.color},${u.color}66);"></div>
+        <div class="u-body">
+          <div class="u-head">
+            <div class="u-logo" style="background:linear-gradient(135deg,${u.color},${u.color}bb);box-shadow:0 4px 14px ${u.color}44;">${u.acronym}</div>
+            <div><div class="u-name">${u.name}</div><div class="u-loc">${u.flag} ${u.city}, ${u.country}</div></div>
+          </div>
+          <div class="u-tags">
+            <span class="u-pill" style="background:${u.color}20;color:${u.color};border:1px solid ${u.color}40;">${u.subject}</span>
+            <span class="u-pill" style="background:rgba(255,255,255,.05);color:var(--text-mid);border:1px solid rgba(255,255,255,.1);">🗓 ${u.intake}</span>
+          </div>
+          <div class="u-foot">
+            <div><div class="u-tl">Annual Tuition</div><div class="u-tv">${u.tuition}</div></div>
+            <button class="u-apply" onclick="applyToUniversity('${u.name.replace(/'/g,"\\'")}')">Apply Now →</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  
+  // Apply to university
+  function applyToUniversity(uniName) {
+    const msg = `Excellent! You're applying to ${uniName}. Our team will review your application and contact you within 24 hours with next steps. Check your email for updates!`;
+    alert(msg);
+    // In a real scenario, this would save the application to the database
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  INITIALIZE PAGE ON LOAD
+  // ═══════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is already logged in
+    checkSession();
+    
+    // Render marketplace universities (in case needed)
+    renderMarketplaceUnis();
+  });
+
+  </script>
+</body>
+</html>
