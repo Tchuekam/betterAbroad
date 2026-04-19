@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BetterAbroad - API Test Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    pre { background: #f4f4f4; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; }
+    .api-call { margin: 12px 0; padding: 12px; border-left: 4px solid #06b6d4; background: #f0f9ff; }
+    .response { margin: 8px 0; padding: 8px; background: #f5f5f5; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-gray-50 p-8">
+
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold mb-2">BetterAbroad API Test Console</h1>
+  <p class="text-gray-600 mb-8">Test the platform APIs directly. All requests use JSON.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Left Panel: Tests -->
+    <div class="space-y-4">
+      <h2 class="text-2xl font-bold mb-4">Test Cases</h2>
+
+      <!-- Test 1: Register -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">1. Register New Student</h3>
+        <button onclick="testRegister()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test1-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 2: Login -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">2. Login with Credentials</h3>
+        <div class="mb-2">
+          <input type="email" id="login-email" placeholder="Email" value="test@student.com" class="w-full px-3 py-2 border rounded mb-2" />
+          <input type="password" id="login-password" placeholder="Password" value="password123" class="w-full px-3 py-2 border rounded" />
+        </div>
+        <button onclick="testLogin()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test2-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 3: Get Current User -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">3. Get Current Session User</h3>
+        <button onclick="testGetMe()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test3-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 4: Save Profile -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">4. Save Student Profile</h3>
+        <button onclick="testSaveProfile()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test4-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 5: List Documents -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">5. List User Documents</h3>
+        <button onclick="testListDocuments()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test5-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 6: Search Students -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">6. Search Students</h3>
+        <input type="text" id="search-query" placeholder="Search query" value="john" class="w-full px-3 py-2 border rounded mb-2" />
+        <button onclick="testSearchStudents()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Run Test
+        </button>
+        <div id="test6-result" class="response hidden"></div>
+      </div>
+
+      <!-- Test 7: Logout -->
+      <div class="api-call">
+        <h3 class="font-bold mb-2">7. Logout</h3>
+        <button onclick="testLogout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+          Run Test
+        </button>
+        <div id="test7-result" class="response hidden"></div>
+      </div>
+
+    </div>
+
+    <!-- Right Panel: Info -->
+    <div class="bg-white p-6 rounded-lg shadow h-fit">
+      <h2 class="text-2xl font-bold mb-4">Quick Reference</h2>
+
+      <h3 class="font-bold mt-4 mb-2">API Base URL</h3>
+      <pre>http://localhost/BetterAbroam/BETTERABROAD/DATABASE</pre>
+
+      <h3 class="font-bold mt-4 mb-2">Test Credentials</h3>
+      <pre>Email: test@student.com
+Password: password123
+
+Email: admin@betterabroad.com
+Password: admin123</pre>
+
+      <h3 class="font-bold mt-4 mb-2">Endpoints</h3>
+      <div class="text-sm space-y-2">
+        <div><strong>POST</strong> /register.php - Create account</div>
+        <div><strong>POST</strong> /login.php - User login</div>
+        <div><strong>POST</strong> /logout.php - User logout</div>
+        <div><strong>GET</strong> /me.php - Current user</div>
+        <div><strong>POST</strong> /save.php - Save profile</div>
+        <div><strong>POST</strong> /upload.php - Upload docs</div>
+        <div><strong>GET</strong> /documents.php - List documents</div>
+        <div><strong>GET</strong> /search_students.php - Search</div>
+      </div>
+
+      <h3 class="font-bold mt-4 mb-2">Tips</h3>
+      <ul class="text-sm space-y-1 list-disc pl-4">
+        <li>Register = Create new account</li>
+        <li>Login = Get session cookies</li>
+        <li>ME = Check if logged in</li>
+        <li>Open DevTools (F12) to see requests</li>
+        <li>Check browser cookies for session ID</li>
+      </ul>
+
+      <div class="mt-6 p-4 bg-blue-50 rounded border border-blue-300">
+        <p class="text-sm"><strong>💡 Tip:</strong> Use browser DevTools (F12) → Network tab to see all API calls and responses.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost/BetterAbroam/BETTERABROAD/DATABASE';
+
+  function showResult(elementId, data) {
+    const el = document.getElementById(elementId);
+    el.classList.remove('hidden');
+    el.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+  }
+
+  async function testRegister() {
+    const res = await fetch(`${API_BASE}/register.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        email: `test${Date.now()}@student.com`,
+        password: 'password123',
+        role: 'student'
+      })
+    });
+    const data = await res.json();
+    showResult('test1-result', { status: res.status, ...data });
+  }
+
+  async function testLogin() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const res = await fetch(`${API_BASE}/login.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    showResult('test2-result', { status: res.status, ...data });
+  }
+
+  async function testGetMe() {
+    const res = await fetch(`${API_BASE}/me.php`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    const data = await res.json();
+    showResult('test3-result', { status: res.status, ...data });
+  }
+
+  async function testSaveProfile() {
+    const res = await fetch(`${API_BASE}/save.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        fullName: 'John Doe',
+        dob: '2000-01-15',
+        nationality: 'Cameroonian',
+        gpa: 3.8,
+        major: 'Computer Science',
+        intake: 'Fall 2025',
+        budget: '$20k–$35k',
+        description: 'Passionate about software engineering'
+      })
+    });
+    const data = await res.json();
+    showResult('test4-result', { status: res.status, ...data });
+  }
+
+  async function testListDocuments() {
+    const res = await fetch(`${API_BASE}/documents.php`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    const data = await res.json();
+    showResult('test5-result', { status: res.status, ...data });
+  }
+
+  async function testSearchStudents() {
+    const query = document.getElementById('search-query').value;
+    const res = await fetch(`${API_BASE}/search_students.php?q=${encodeURIComponent(query)}&limit=5`, {
+      credentials: 'include',
+    });
+    const data = await res.json();
+    showResult('test6-result', { status: res.status, ...data });
+  }
+
+  async function testLogout() {
+    const res = await fetch(`${API_BASE}/logout.php`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    const data = await res.json();
+    showResult('test7-result', { status: res.status, ...data });
+  }
+</script>
+
+</body>
+</html>
