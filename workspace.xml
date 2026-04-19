@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0901e5ba-3ebd-40a1-a7ab-c3368b69eca3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/V1test.html" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/V1test.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/admin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/market.html" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/market.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/applications.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/applications.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/db.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/db.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/dossier.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/dossier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/mailer.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/mailer.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/register.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/schema_additions.sql" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/schema_additions.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/upload.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/upload.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/users.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/users.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE/verify.php" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE/verify.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="168" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/market.html" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="3B6Ok11iY6gdq2jdnEUV0xyJEOD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0901e5ba-3ebd-40a1-a7ab-c3368b69eca3" name="Changes" comment="" />
+      <created>1773806199210</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1773806199210</updated>
+      <workItem from="1773806200690" duration="23452000" />
+      <workItem from="1774057517824" duration="27061000" />
+      <workItem from="1774274334620" duration="3219000" />
+      <workItem from="1774398764611" duration="3884000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/market.html</url>
+          <line>2177</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/DATABASE/GRANDE HTML/LANDING PAGE/market.html</url>
+          <line>2177</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
