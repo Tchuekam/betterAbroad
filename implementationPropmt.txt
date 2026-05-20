@@ -1,0 +1,1621 @@
+================================================================================
+  BETTERABROAD PLATFORM — COMPLETE IMPLEMENTATION PROMPT
+  For: Codex / High-Reasoning AI Model in WebStorm
+  Purpose: Bring the platform from 67% to 100% functional and production-ready
+  Author: Prompt-engineered specification
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 0 — HOW TO READ THIS PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are implementing the remaining features of BetterAbroad, an EdTech SaaS
+marketplace that connects African students with international universities.
+The platform earns commission on successful enrollments.
+
+This prompt is structured as follows:
+  0. How to read this prompt (here)
+  1. Project context and constraints
+  2. Current file map and what already works
+  3. Critical bugs to fix first (before any new feature)
+  4. New PHP files to create (backend)
+  5. market.html modifications (frontend — student/university platform)
+  6. admin.html modifications (frontend — admin panel)
+  7. Schema additions (database)
+  8. The expected end result (acceptance criteria)
+  9. Absolute coding rules (never break these)
+
+Work through sections 3 → 4 → 5 → 6 → 7 in order. Do NOT skip the bug fixes
+in section 3. Every code change must be minimal and targeted — do not rewrite
+files, only add or modify what is specified.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — PROJECT CONTEXT AND CONSTRAINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUSINESS MODEL
+  BetterAbroad earns a commission every time a student it introduced to a
+  university actually enrolls. The platform must protect this commission legally
+  via timestamped Enrollment Certificates. Without this, universities can claim
+  they found the student independently and refuse to pay.
+
+TECH STACK (do not change any of these)
+  Frontend : React 18 UMD via CDN, Babel Standalone 7.23.5 (JSX transpiled
+             in browser, NO bundler, NO npm, NO build step)
+  Backend  : PHP 8+ (mysqli, NOT PDO), XAMPP on Windows (local dev)
+  Database : MySQL, sessions via BA_SESSION PHP cookie
+  No TypeScript. No ES modules. No import/export statements.
+  All React components defined as: const ComponentName = (props) => { ... }
+  All hooks destructured at top: const { useState, useRef, useEffect } = React;
+
+FOLDER STRUCTURE
+  BETTERABROAD/
+  └── DATABASE/                       ← ALL PHP files live here
+      ├── db.php                      ← DB connection + helpers (DO NOT MODIFY)
+      ├── [all existing .php files]
+      └── GRANDE HTML/
+          └── LANDING PAGE/
+              ├── market.html         ← Student/university platform (MODIFY)
+              └── admin.html          ← Admin panel (MODIFY)
+
+CRITICAL PATH RULE — READ THIS BEFORE TOUCHING ANY FETCH() CALL
+  HTML files live at: DATABASE/GRANDE HTML/LANDING PAGE/
+  PHP files live at:  DATABASE/
+  Therefore from HTML: ../../endpoint.php reaches DATABASE/endpoint.php
+
+  CORRECT:   fetch('../../login.php', ...)
+  WRONG:     fetch('../../DATABASE/login.php', ...)   ← 404, double-path error
+
+  This is the single most common bug in this codebase. Every fetch() you write
+  or modify must use ../../  with NO DATABASE/ segment after it.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — CURRENT FILE MAP (what already works)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WORKING PHP ENDPOINTS
+  ../../register.php       POST {email, password, role}   → creates user + session
+  ../../login.php          POST {email, password}          → session + profile
+  ../../logout.php         POST {}                         → destroys session
+  ../../me.php             GET                             → current user + profile
+  ../../save.php           POST {profile fields}           → upserts profile
+  ../../upload.php         POST FormData {doc_type, file}  → stores document
+  ../../documents.php      GET                             → user's document list
+  ../../students.php       GET ?search&major&nationality   → marketplace list
+  ../../universities.php   GET ?search&country             → marketplace list
+  ../../conversations.php  GET                             → conversation list
+  ../../thread.php         GET ?with={user_id}             → message thread
+  ../../send.php           POST {to_user_id, body}         → send message
+  ../../verify.php         POST {user_id, type, action}    → admin verify user
+  ../../users.php          GET ?role=student|university    → admin user list
+
+WORKING FRONTEND FEATURES (market.html)
+  ✅ Sign Up + Sign In tabs with real PHP auth
+  ✅ Session restoration on page load via me.php
+  ✅ Student 4-step registration wizard (saves to save.php)
+  ✅ University 3-step registration wizard (saves to save.php)
+  ✅ Student profile dashboard (overview, documents, applications, messages,
+     settings tabs)
+  ✅ University profile dashboard (overview, documents, applicants, seminars,
+     messages, settings tabs)
+  ✅ Document upload with XHR progress bars (8 student slots, 3 uni slots)
+  ✅ Marketplace with search, filters, grid/list view, profile drawer
+  ✅ Real-time messages (conversations list + thread + send)
+  ✅ Profile save to DB from settings tab
+
+PARTIALLY WORKING
+  ⚠️  Applications tracker — student can see applications but
+      university cannot update status (POST handler missing)
+  ⚠️  Seminar tab — generates Google Meet links but does NOT save to DB
+  ⚠️  Notifications bell icon — renders but shows no data (dropdown missing)
+  ⚠️  admin.html — all fetch() calls use ../../DATABASE/ (wrong paths)
+  ⚠️  admin.html — document approval per slot (not per user) missing
+
+NOT BUILT YET
+  ❌  Enrollment Certificate generator (TCPDF → PDF)
+  ❌  Commission log (track every enrollment + payment status)
+  ❌  Student Dossier PDF generator
+  ❌  Notifications system (PHP endpoint + React dropdown)
+  ❌  Public Intake Dashboard (anonymous stats for uni sales pitch)
+  ❌  seminars.php PHP endpoint (DB persistence for seminar records)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — CRITICAL BUGS TO FIX FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Fix these before writing any new feature. They block everything downstream.
+
+────────────────────────────────────────────────────────────────────────────────
+BUG FIX 1 — admin.html wrong API paths
+────────────────────────────────────────────────────────────────────────────────
+File: DATABASE/GRANDE HTML/LANDING PAGE/admin.html
+Problem: All 5 fetch() calls use '../../DATABASE/endpoint.php' which causes 404.
+
+Do a global find-and-replace inside admin.html:
+  Find:    '../../DATABASE/'
+  Replace: '../../'
+
+Verify these 5 lines are corrected:
+  Line ~561:  login.php
+  Line ~1192: verify.php
+  Line ~1705: applications.php
+  Line ~2117: users.php?role=student
+  Line ~2124: users.php?role=university
+
+After fix, confirm no remaining occurrences of '../../DATABASE/' in admin.html.
+
+────────────────────────────────────────────────────────────────────────────────
+BUG FIX 2 — applications.php missing university status update handler
+────────────────────────────────────────────────────────────────────────────────
+File: DATABASE/applications.php
+Problem: The POST block starts with:
+  if ($auth['role'] !== 'student') fail('Only students can apply.', 403);
+This means universities can never update application status → applicants panel
+is read-only and universities cannot move candidates through the pipeline.
+
+Find this block in the POST section:
+  if ($auth['role'] !== 'student') fail('Only students can apply.', 403);
+
+Replace it with the following logic that handles BOTH student and university:
+
+  if ($auth['role'] === 'university') {
+      // University updates status of an application in their pipeline
+      $data   = get_body();
+      $app_id = (int)($data['id']     ?? 0);
+      $status = clean($conn, $data['status'] ?? '');
+      $note   = clean($conn, $data['admin_note'] ?? '');
+      $allowed_statuses = ['new','review','interview','offer','rejected','withdrawn'];
+      if (!$app_id)                           fail('application id required.');
+      if (!in_array($status, $allowed_statuses)) fail('Invalid status value.');
+
+      $stmt = $conn->prepare(
+          'UPDATE applications SET status=?, admin_note=?, updated_at=NOW()
+           WHERE id=? AND university_id=?'
+      );
+      $stmt->bind_param('ssii', $status, $note, $app_id, $uid);
+      if (!$stmt->execute()) fail('Update failed: ' . $conn->error, 500);
+      $stmt->close();
+
+      // Notify the student
+      $stmt = $conn->prepare(
+          'SELECT student_id FROM applications WHERE id=? LIMIT 1'
+      );
+      $stmt->bind_param('i', $app_id);
+      $stmt->execute();
+      $row = $stmt->get_result()->fetch_assoc();
+      $stmt->close();
+      if ($row) {
+          $title = 'Application status updated';
+          $body  = 'Your application status has changed to: ' . $status;
+          $stmt  = $conn->prepare(
+              'INSERT INTO notifications (user_id, type, title, body)
+               VALUES (?, "application_update", ?, ?)'
+          );
+          $stmt->bind_param('iss', $row['student_id'], $title, $body);
+          $stmt->execute();
+          $stmt->close();
+      }
+      respond(['success' => true]);
+  }
+
+  if ($auth['role'] !== 'student') fail('Only students can apply.', 403);
+  // ... rest of existing student POST logic unchanged ...
+
+────────────────────────────────────────────────────────────────────────────────
+BUG FIX 3 — students.php references non-existent sp.intake column
+────────────────────────────────────────────────────────────────────────────────
+File: DATABASE/students.php
+Problem: The SELECT query includes 'sp.intake,' but the student_profiles table
+has no intake column. This causes the SQL to fail silently → empty marketplace.
+
+Find in the $sql string:
+    sp.intake,
+
+Remove that line entirely. The corrected SELECT should go from sp.major
+directly to sp.budget with no sp.intake line between them.
+
+────────────────────────────────────────────────────────────────────────────────
+BUG FIX 4 — documents table missing UNIQUE constraint
+────────────────────────────────────────────────────────────────────────────────
+Run this SQL in phpMyAdmin → SQL tab ONE TIME:
+
+  ALTER TABLE documents
+    ADD UNIQUE KEY unique_user_doc (user_id, doc_type);
+
+This is required for the ON DUPLICATE KEY UPDATE in upload.php to work
+correctly. Without it, re-uploading a document creates duplicate rows
+instead of replacing the existing one.
+
+If you get "Duplicate entry" error when running it, first run:
+  DELETE d1 FROM documents d1
+  INNER JOIN documents d2
+    ON d1.user_id = d2.user_id AND d1.doc_type = d2.doc_type
+   AND d1.id > d2.id;
+Then re-run the ALTER TABLE.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — NEW PHP FILES TO CREATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create each file in the DATABASE/ folder. Every file must start with:
+  <?php
+  require_once __DIR__ . '/db.php';
+
+And end responses with respond([...]) — never echo directly.
+
+────────────────────────────────────────────────────────────────────────────────
+NEW FILE 1 — DATABASE/notifications.php
+────────────────────────────────────────────────────────────────────────────────
+Purpose: Fetch and mark-read notifications for the current user.
+
+GET handler:
+  - Require auth: $auth = require_auth();
+  - Query:
+      SELECT id, type, title, body, is_read, created_at
+      FROM notifications
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 30
+  - Return: { success: true, notifications: [...], unread_count: N }
+  - unread_count = count of rows where is_read = 0
+
+POST handler (mark as read):
+  - Body: { notification_id: N }  OR  { mark_all: true }
+  - If mark_all: UPDATE notifications SET is_read=1, read_at=NOW() WHERE user_id=?
+  - If notification_id: UPDATE notifications SET is_read=1, read_at=NOW()
+    WHERE id=? AND user_id=?   (user_id check is a security guard)
+  - Return: { success: true }
+
+────────────────────────────────────────────────────────────────────────────────
+NEW FILE 2 — DATABASE/seminars.php
+────────────────────────────────────────────────────────────────────────────────
+Purpose: CRUD for university recruitment seminar events.
+
+First create the table (add to schema or run in phpMyAdmin):
+  CREATE TABLE IF NOT EXISTS seminars (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    university_id INT NOT NULL,
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT DEFAULT NULL,
+    event_date   DATE NOT NULL,
+    event_time   TIME NOT NULL,
+    max_students INT NOT NULL DEFAULT 50,
+    topic        VARCHAR(255) DEFAULT NULL,
+    meet_link    VARCHAR(500) NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (university_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_uni (university_id)
+  ) ENGINE=InnoDB;
+
+GET handler:
+  - Require auth, role must be university or admin
+  - Fetch: SELECT * FROM seminars WHERE university_id = ? ORDER BY event_date DESC
+  - Return: { success: true, seminars: [...] }
+
+POST handler (create):
+  - Body: { title, description, date, time, maxStudents, topic, meet_link }
+  - Validate: title, date, time, meet_link all required
+  - INSERT INTO seminars (university_id, title, description, event_date,
+    event_time, max_students, topic, meet_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  - Return: { success: true, seminar: { id, ...all fields } }
+
+DELETE handler (cancel):
+  - Body: { id: seminar_id }
+  - DELETE FROM seminars WHERE id=? AND university_id=?
+  - Return: { success: true }
+
+────────────────────────────────────────────────────────────────────────────────
+NEW FILE 3 — DATABASE/certificate.php
+────────────────────────────────────────────────────────────────────────────────
+Purpose: Generate a timestamped PDF Enrollment Certificate that proves
+BetterAbroad introduced a specific student to a specific university.
+This is the document that protects the commission.
+
+First create the table:
+  CREATE TABLE IF NOT EXISTS enrollment_certificates (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    application_id INT NOT NULL UNIQUE,
+    certificate_id VARCHAR(50) NOT NULL UNIQUE,
+    file_path      VARCHAR(500) NOT NULL,
+    issued_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB;
+
+POST handler — admin only:
+  - require_admin()
+  - Body: { application_id: N }
+  - Validate application exists and has status 'offer' or 'review'
+  - Fetch full data:
+      SELECT
+        a.id, a.applied_at, a.status,
+        sp.full_name AS student_name, sp.nationality, sp.major, sp.gpa,
+        u_s.email AS student_email,
+        up.uni_name, up.country, up.website,
+        u_u.email AS uni_email
+      FROM applications a
+      JOIN users u_s ON u_s.id = a.student_id
+      JOIN users u_u ON u_u.id = a.university_id
+      LEFT JOIN student_profiles sp ON sp.user_id = a.student_id
+      LEFT JOIN university_profiles up ON up.user_id = a.university_id
+      WHERE a.id = ?
+
+  - Generate certificate ID: 'CERT-' . $app_id . '-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6))
+  - Generate PDF using TCPDF (included in XAMPP at vendor/tecnickcom/tcpdf):
+      $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+      $pdf->SetCreator('BetterAbroad');
+      $pdf->SetTitle('Enrollment Certificate');
+      $pdf->AddPage();
+
+      PDF CONTENT LAYOUT:
+        [Header] BetterAbroad logo text + tagline
+        [Title]  "ENROLLMENT INTRODUCTION CERTIFICATE"
+        [Body]   "This certificate confirms that BetterAbroad (Yaoundé, Cameroon)
+                  introduced the following student to the following institution
+                  through its verified student marketplace platform."
+        [Student box]
+          Full Name: {student_name}
+          Nationality: {nationality}
+          Academic Major: {major}
+          GPA: {gpa}
+          Email: {student_email}
+        [University box]
+          Institution: {uni_name}
+          Country: {country}
+          Website: {website}
+          Contact: {uni_email}
+        [Transaction info]
+          Certificate ID: {certificate_id}
+          Application ID: #{application_id}
+          Date of Introduction: {applied_at formatted}
+          Certificate Issued: {NOW() formatted}
+          Platform: BetterAbroad Marketplace
+        [Footer]
+          "This document constitutes legal proof of introduction for the
+           purposes of commission collection under the BetterAbroad Service
+           Agreement. Any enrollment resulting from this introduction is
+           subject to the agreed commission rate."
+          Signature line: ________________________
+          BetterAbroad Founder | Yaoundé, Cameroon
+
+  - Save PDF: $dir = __DIR__ . '/../../uploads/certificates/';
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    $filename = 'cert_' . $app_id . '.pdf';
+    $pdf->Output($dir . $filename, 'F');
+
+  - Insert into enrollment_certificates table
+
+  - Notify student and university:
+      INSERT INTO notifications (user_id, type, title, body)
+      VALUES (student_id, 'certificate', 'Enrollment Certificate Issued',
+              'Your enrollment certificate for {uni_name} has been generated.')
+      INSERT INTO notifications (user_id, type, title, body)
+      VALUES (university_id, 'certificate', 'Enrollment Certificate Issued',
+              '{student_name} enrollment with your institution has been certified.')
+
+  - Log admin action: log_action($conn, $admin_id, 'certificate_issued', 'application', $app_id)
+
+  - Return: {
+      success: true,
+      certificate_id: "CERT-...",
+      file_url: "uploads/certificates/cert_{app_id}.pdf",
+      student_name: "...",
+      uni_name: "..."
+    }
+
+────────────────────────────────────────────────────────────────────────────────
+NEW FILE 4 — DATABASE/intake_stats.php
+────────────────────────────────────────────────────────────────────────────────
+Purpose: Public endpoint (NO auth required) that returns anonymous aggregate
+stats about the student pipeline. Used on the public Intake Dashboard page
+to show universities what the pipeline looks like before they pay.
+
+GET handler — NO require_auth():
+  Run these 6 queries and return them all in one response:
+
+  1. total_students:
+     SELECT COUNT(*) FROM users WHERE role='student' AND is_active=1
+
+  2. verified_count:
+     SELECT COUNT(*) FROM student_profiles WHERE verified='verified'
+
+  3. docs_complete_count:
+     SELECT COUNT(DISTINCT user_id) FROM documents
+     WHERE user_id IN (SELECT id FROM users WHERE role='student')
+     GROUP BY user_id HAVING COUNT(*) >= 4
+     (wrap in subquery to get total count)
+
+  4. by_nationality: (top 10)
+     SELECT nationality, COUNT(*) as count FROM student_profiles
+     WHERE nationality IS NOT NULL AND nationality != ''
+     GROUP BY nationality ORDER BY count DESC LIMIT 10
+
+  5. by_major: (top 10)
+     SELECT major, COUNT(*) as count FROM student_profiles
+     WHERE major IS NOT NULL AND major != ''
+     GROUP BY major ORDER BY count DESC LIMIT 10
+
+  6. by_budget:
+     SELECT budget, COUNT(*) as count FROM student_profiles
+     WHERE budget IS NOT NULL AND budget != ''
+     GROUP BY budget ORDER BY count DESC
+
+  Return:
+  {
+    success: true,
+    total_students: N,
+    verified_count: N,
+    docs_complete_count: N,
+    by_nationality: [{nationality, count}, ...],
+    by_major: [{major, count}, ...],
+    by_budget: [{budget, count}, ...]
+  }
+
+  CORS note: This endpoint is public so add at the top before require_once:
+    header('Access-Control-Allow-Origin: *');
+
+────────────────────────────────────────────────────────────────────────────────
+NEW FILE 5 — DATABASE/commission_log.php
+────────────────────────────────────────────────────────────────────────────────
+Purpose: Track commission payments per enrollment. Admin-only CRUD.
+
+First create the table:
+  CREATE TABLE IF NOT EXISTS commission_log (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    application_id   INT NOT NULL,
+    certificate_id   VARCHAR(50) DEFAULT NULL,
+    amount_fcfa      DECIMAL(12,2) DEFAULT NULL,
+    currency         VARCHAR(10) DEFAULT 'FCFA',
+    status           ENUM('pending','invoiced','paid','disputed') DEFAULT 'pending',
+    invoice_date     DATE DEFAULT NULL,
+    payment_date     DATE DEFAULT NULL,
+    payment_method   VARCHAR(100) DEFAULT NULL,
+    notes            TEXT DEFAULT NULL,
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    INDEX idx_status (status)
+  ) ENGINE=InnoDB;
+
+GET handler — admin only:
+  - Join with applications, student_profiles, university_profiles
+  - Return full commission records with student name + uni name
+  - Support ?status= filter
+
+POST handler — admin only (create or update):
+  - If body has { id }: UPDATE existing record
+  - If no id: INSERT new record
+  - Fields: application_id, amount_fcfa, status, invoice_date,
+    payment_date, payment_method, notes
+  - Return: { success: true, record: {...} }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — market.html MODIFICATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All changes below are ADDITIONS or targeted REPLACEMENTS. Do not rewrite the
+entire file. Locate the exact component and apply the surgical change.
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 5.1 — Wire SeminarTab to seminars.php
+────────────────────────────────────────────────────────────────────────────────
+Currently the SeminarTab component generates a Meet link locally but never
+saves it to the database. Seminars disappear on page refresh.
+
+Find the SeminarTab component. Make these changes:
+
+A) On mount, fetch existing seminars from DB:
+   useEffect(() => {
+     fetch('../../seminars.php', { credentials: 'include' })
+       .then(r => r.json())
+       .then(data => { if (data.success) setSeminars(data.seminars || []); })
+       .catch(() => {});
+   }, []);
+
+B) In the createSeminar() function, after generating meetLink, POST to DB:
+   const payload = {
+     title:       form.title,
+     description: form.description,
+     date:        form.date,
+     time:        form.time,
+     maxStudents: form.maxStudents,
+     topic:       form.topic,
+     meet_link:   meetLink,
+   };
+   const res = await fetch('../../seminars.php', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     credentials: 'include',
+     body: JSON.stringify(payload),
+   }).then(r => r.json());
+
+   if (res.success) {
+     setSeminars(prev => [res.seminar, ...prev]);
+     setShowForm(false);
+     setForm({ title:'', description:'', date:'', time:'', maxStudents:'50', topic:'' });
+   } else {
+     setMsg(res.error || 'Failed to create seminar');
+   }
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 5.2 — Wire ApplicantsTab status dropdown to applications.php
+────────────────────────────────────────────────────────────────────────────────
+The ApplicantsTab has a status <select> dropdown but the updateStatus() function
+currently posts with role=university which was being rejected. After bug fix 2
+this will now work, but the frontend function needs to also send admin_note.
+
+Find the ApplicantsTab component. Update the updateStatus function:
+  const updateStatus = async (appId, status, note = '') => {
+    const res = await fetch('../../applications.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id: appId, status, admin_note: note }),
+    }).then(r => r.json()).catch(() => null);
+
+    if (res?.success) {
+      setApps(prev => prev.map(a => a.id === appId ? { ...a, status, admin_note: note } : a));
+    }
+  };
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 5.3 — Add NotificationsDropdown to TopBar
+────────────────────────────────────────────────────────────────────────────────
+The TopBar bell icon currently renders but shows nothing on click.
+Add a real notifications dropdown.
+
+A) Add this new component BEFORE the TopBar component definition:
+
+const NotificationsDropdown = ({ userId, onClose }) => {
+  const [notifs,  setNotifs]  = useState([]);
+  const [loading, setLoading] = useState(true);
+  const ref = useRef();
+
+  useEffect(() => {
+    fetch('../../notifications.php', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => { if (data.success) setNotifs(data.notifications || []); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Close on click outside
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  const markAllRead = () => {
+    fetch('../../notifications.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ mark_all: true }),
+    });
+    setNotifs(prev => prev.map(n => ({ ...n, is_read: 1 })));
+  };
+
+  const TYPE_ICON = {
+    verified:           'fa-circle-check',
+    rejected:           'fa-circle-xmark',
+    new_message:        'fa-envelope',
+    application_update: 'fa-paper-plane',
+    application:        'fa-paper-plane',
+    certificate:        'fa-certificate',
+    default:            'fa-bell',
+  };
+
+  const TYPE_COLOR = {
+    verified:    '#4ade80',
+    rejected:    '#f87171',
+    certificate: '#fbbf24',
+    default:     '#3b82f6',
+  };
+
+  return (
+    <div ref={ref} style={{
+      position:'absolute', top:54, right:0, width:340, maxHeight:440,
+      overflowY:'auto', zIndex:200,
+      background:'#0a1830', border:'1px solid rgba(255,255,255,.1)',
+      borderRadius:16, boxShadow:'0 24px 60px rgba(0,0,0,.5)',
+    }}>
+      {/* Header */}
+      <div style={{
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        padding:'14px 18px', borderBottom:'1px solid rgba(255,255,255,.07)',
+      }}>
+        <span style={{ fontWeight:700, fontSize:14, color:'#f0f4ff' }}>
+          Notifications
+        </span>
+        <button onClick={markAllRead} style={{
+          background:'none', border:'none', cursor:'pointer',
+          color:'#3b82f6', fontSize:12, fontWeight:600, fontFamily:'Inter,sans-serif',
+        }}>
+          Mark all read
+        </button>
+      </div>
+
+      {/* Body */}
+      {loading ? (
+        <div style={{ padding:24, textAlign:'center', color:'#64748b', fontSize:13 }}>
+          Loading…
+        </div>
+      ) : notifs.length === 0 ? (
+        <div style={{ padding:32, textAlign:'center' }}>
+          <i className="fa-solid fa-bell-slash"
+            style={{ fontSize:28, color:'#3d5a80', marginBottom:10, display:'block' }}/>
+          <p style={{ color:'#64748b', fontSize:13 }}>No notifications yet</p>
+        </div>
+      ) : (
+        notifs.map(n => {
+          const icon  = TYPE_ICON[n.type]  || TYPE_ICON.default;
+          const color = TYPE_COLOR[n.type] || TYPE_COLOR.default;
+          const unread = !n.is_read || n.is_read === 0;
+          return (
+            <div key={n.id} style={{
+              display:'flex', gap:12, padding:'13px 18px',
+              borderBottom:'1px solid rgba(255,255,255,.04)',
+              background: unread ? 'rgba(59,130,246,.06)' : 'transparent',
+              transition:'background .15s',
+            }}>
+              <div style={{
+                width:36, height:36, borderRadius:50, flexShrink:0,
+                background: color + '22',
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <i className={`fa-solid ${icon}`} style={{ color, fontSize:14 }}/>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight: unread ? 600 : 400, color:'#f0f4ff', marginBottom:2 }}>
+                  {n.title}
+                </div>
+                {n.body && (
+                  <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5 }}>{n.body}</div>
+                )}
+                <div style={{ fontSize:11, color:'#3d5a80', marginTop:4 }}>
+                  {n.created_at ? new Date(n.created_at).toLocaleDateString('en-GB', {
+                    day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+                  }) : ''}
+                </div>
+              </div>
+              {unread && (
+                <div style={{
+                  width:8, height:8, borderRadius:50, background:'#3b82f6',
+                  flexShrink:0, marginTop:4,
+                }}/>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+};
+
+B) In the TopBar component, add state and toggle for the dropdown.
+   Add at the top of TopBar:
+     const [showNotifs, setShowNotifs] = useState(false);
+     const [unreadCount, setUnreadCount] = useState(0);
+
+   On mount (add useEffect inside TopBar):
+     useEffect(() => {
+       if (!loggedIn) return;
+       fetch('../../notifications.php', { credentials: 'include' })
+         .then(r => r.json())
+         .then(data => { if (data.success) setUnreadCount(data.unread_count || 0); })
+         .catch(() => {});
+     }, [loggedIn]);
+
+C) Find the bell icon div in TopBar and replace it with:
+   <div style={{ position:'relative' }}>
+     <div style={{
+       width:38, height:38, borderRadius:10, cursor:'pointer',
+       background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.08)',
+       display:'flex', alignItems:'center', justifyContent:'center',
+     }}
+     onClick={() => setShowNotifs(s => !s)}>
+       <i className="fa-solid fa-bell" style={{ color:'#94a3b8' }}/>
+     </div>
+     {unreadCount > 0 && (
+       <div style={{
+         position:'absolute', top:-4, right:-4,
+         minWidth:18, height:18, borderRadius:9,
+         background:'#e02441', color:'#fff',
+         fontSize:10, fontWeight:700,
+         display:'flex', alignItems:'center', justifyContent:'center',
+         padding:'0 4px',
+       }}>
+         {unreadCount > 99 ? '99+' : unreadCount}
+       </div>
+     )}
+     {showNotifs && loggedIn && (
+       <NotificationsDropdown
+         userId={user?.userId}
+         onClose={() => setShowNotifs(false)}
+       />
+     )}
+   </div>
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 5.4 — Add Dossier Download button to StudentProfile Overview tab
+────────────────────────────────────────────────────────────────────────────────
+In the StudentProfile component, inside the overview tab (activeTab==='overview'),
+find the description/save section at the bottom of the overview content.
+Add a new glass-card section ABOVE the description card:
+
+  <div className="glass-card" style={{ borderRadius:18, padding:24 }}>
+    <div className="section-pill">
+      <i className="fa-solid fa-file-pdf"/> Application Dossier
+    </div>
+    <div style={{ display:'flex', alignItems:'center', gap:18 }}>
+      <div style={{ flex:1 }}>
+        <h4 style={{ fontWeight:600, fontSize:15, marginBottom:6 }}>
+          Generate Your Application Bundle
+        </h4>
+        <p style={{ color:'#64748b', fontSize:13, lineHeight:1.7 }}>
+          Download a professional PDF containing your complete profile,
+          document checklist, and personal statement. Share it directly
+          with universities or use it at any cyber café.
+        </p>
+      </div>
+      <a
+        href="../../dossier.php"
+        target="_blank"
+        rel="noreferrer"
+        className="ba-btn ba-btn-primary"
+        style={{ flexShrink:0, padding:'10px 20px', fontSize:13, textDecoration:'none' }}
+      >
+        <i className="fa-solid fa-download"/> Download PDF
+      </a>
+    </div>
+  </div>
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 5.5 — Add public intake stats route to App router
+────────────────────────────────────────────────────────────────────────────────
+A) Add the IntakeDashboard component (full implementation below).
+   Add it BEFORE the App component definition.
+
+const IntakeDashboard = () => {
+  const [stats,   setStats]   = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('../../intake_stats.php')
+      .then(r => r.json())
+      .then(data => { if (data.success) setStats(data); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return (
+    <div style={{ minHeight:'100vh', background:'#07111f', display:'flex',
+      alignItems:'center', justifyContent:'center', color:'#94a3b8', fontSize:14 }}>
+      Loading pipeline data…
+    </div>
+  );
+
+  const StatCard = ({ label, value, icon, color }) => (
+    <div className="glass-card" style={{ borderRadius:16, padding:20, textAlign:'center' }}>
+      <i className={`fa-solid ${icon}`} style={{ fontSize:24, color, marginBottom:10, display:'block' }}/>
+      <div style={{ fontSize:32, fontWeight:700, color:'#f0f4ff', marginBottom:4 }}>{value}</div>
+      <div style={{ fontSize:12, color:'#64748b' }}>{label}</div>
+    </div>
+  );
+
+  const BarRow = ({ label, value, max, color }) => (
+    <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
+      <div style={{ width:140, fontSize:12, color:'#94a3b8', flexShrink:0,
+        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{label}</div>
+      <div style={{ flex:1, background:'rgba(255,255,255,.06)', borderRadius:4, height:8, overflow:'hidden' }}>
+        <div style={{ height:'100%', width:`${Math.round((value/max)*100)}%`,
+          background: color, borderRadius:4, transition:'width .6s ease' }}/>
+      </div>
+      <div style={{ width:32, fontSize:12, color:'#f0f4ff', textAlign:'right' }}>{value}</div>
+    </div>
+  );
+
+  const maxNat = Math.max(...(stats?.by_nationality || []).map(n => n.count), 1);
+  const maxMaj = Math.max(...(stats?.by_major || []).map(m => m.count), 1);
+
+  return (
+    <div style={{ minHeight:'100vh', background:'#07111f', paddingTop:60 }}>
+      <div style={{
+        position:'fixed', top:0, left:0, right:0, zIndex:100, height:60,
+        background:'rgba(7,17,31,.92)', backdropFilter:'blur(20px)',
+        borderBottom:'1px solid rgba(255,255,255,.07)',
+        padding:'0 28px', display:'flex', alignItems:'center', justifyContent:'space-between',
+      }}>
+        <span style={{ fontFamily:"'Sora',sans-serif", fontWeight:800, fontSize:18, color:'#f0f4ff' }}>
+          Better<span className="grad-text">Abroad</span>
+        </span>
+        <span className="badge badge-blue">
+          <i className="fa-solid fa-chart-bar"/> Live Pipeline Data
+        </span>
+      </div>
+
+      <div style={{ maxWidth:960, margin:'0 auto', padding:'40px 24px' }}>
+
+        {/* Hero */}
+        <div style={{ marginBottom:40, textAlign:'center' }}>
+          <div className="section-pill" style={{ marginBottom:16 }}>
+            <i className="fa-solid fa-users"/> Student Pipeline Preview
+          </div>
+          <h1 style={{ fontFamily:"'Sora',sans-serif", fontWeight:800, fontSize:36,
+            marginBottom:12, color:'#f0f4ff' }}>
+            Your next cohort is <span className="grad-text">already here</span>
+          </h1>
+          <p style={{ color:'#94a3b8', fontSize:16, maxWidth:560, margin:'0 auto 28px' }}>
+            Live anonymous data from the BetterAbroad verified student pipeline.
+            Create a partner account to see full profiles, contact students directly,
+            and schedule recruitment seminars.
+          </p>
+          <button className="ba-btn ba-btn-primary" style={{ fontSize:15, padding:'13px 32px' }}
+            onClick={() => window.location.href = window.location.pathname}>
+            <i className="fa-solid fa-handshake"/> Become a Partner University
+          </button>
+        </div>
+
+        {/* Stats row */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:32 }}>
+          <StatCard label="Active students" value={stats?.total_students || 0}
+            icon="fa-user-graduate" color="#3b82f6"/>
+          <StatCard label="Verified profiles" value={stats?.verified_count || 0}
+            icon="fa-shield-check" color="#4ade80"/>
+          <StatCard label="Complete dossiers" value={stats?.docs_complete_count || 0}
+            icon="fa-folder-open" color="#06b6d4"/>
+        </div>
+
+        {/* Charts row */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:32 }}>
+          <div className="glass-card" style={{ borderRadius:18, padding:24 }}>
+            <div className="section-pill"><i className="fa-solid fa-globe"/> By nationality</div>
+            {(stats?.by_nationality || []).map(n => (
+              <BarRow key={n.nationality} label={n.nationality}
+                value={n.count} max={maxNat} color="#3b82f6"/>
+            ))}
+          </div>
+          <div className="glass-card" style={{ borderRadius:18, padding:24 }}>
+            <div className="section-pill"><i className="fa-solid fa-book"/> By major</div>
+            {(stats?.by_major || []).map(m => (
+              <BarRow key={m.major} label={m.major}
+                value={m.count} max={maxMaj} color="#06b6d4"/>
+            ))}
+          </div>
+        </div>
+
+        {/* Blurred CTA section */}
+        <div style={{ position:'relative', borderRadius:18, overflow:'hidden' }}>
+          <div style={{ filter:'blur(6px)', pointerEvents:'none' }}>
+            <div className="glass-card" style={{ borderRadius:18, padding:24 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+                {[1,2,3,4,5,6].map(i => (
+                  <div key={i} style={{ padding:16, borderRadius:12,
+                    background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.08)' }}>
+                    <div style={{ fontWeight:700, marginBottom:4 }}>Student Profile {i}</div>
+                    <div style={{ color:'#64748b', fontSize:12 }}>GPA 3.{i+3} · Cameroon</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="blur-overlay" style={{ borderRadius:18 }}>
+            <i className="fa-solid fa-lock" style={{ fontSize:28, color:'#3b82f6', marginBottom:12 }}/>
+            <h3 style={{ fontWeight:700, fontSize:18, marginBottom:8, textAlign:'center' }}>
+              See full profiles
+            </h3>
+            <p style={{ color:'#64748b', fontSize:13, textAlign:'center', maxWidth:280 }}>
+              Partner universities access complete student profiles, direct messaging, and seminar booking.
+            </p>
+            <button className="ba-btn ba-btn-primary" style={{ marginTop:16, fontSize:14 }}
+              onClick={() => window.location.href = window.location.pathname}>
+              <i className="fa-solid fa-arrow-right"/> Create Partner Account
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+B) In the App component, add '/intake' to the route map:
+   Add to state: const [path, setPath] = useState( window.location.hash === '#intake' ? '/intake' : '/signup' );
+   Add to render:
+     {path === '/intake' && <IntakeDashboard/>}
+
+C) In the handleLogout function and navigate function, no change needed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — admin.html MODIFICATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After applying bug fix 1 (path correction), add these 3 new panels.
+Each panel is a new React component added before the Admin App component.
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 6.1 — Document Verification Panel (per-document approval)
+────────────────────────────────────────────────────────────────────────────────
+Currently admin.html can verify a user (approve/reject the whole profile)
+but cannot approve individual documents. Add a DocumentsPanel component:
+
+const DocumentsPanel = () => {
+  const [docs,    setDocs]    = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter,  setFilter]  = useState('pending'); // 'pending'|'approved'|'rejected'|'all'
+
+  const loadDocs = () => {
+    setLoading(true);
+    // Admin endpoint — fetch all pending documents across all users
+    fetch('../../users.php?role=all_documents', { credentials:'include' })
+      .then(r => r.json())
+      .then(data => { if (data.success) setDocs(data.documents || []); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadDocs(); }, []);
+
+  const updateDoc = async (docId, status) => {
+    // We'll call verify.php with target_type = 'document'
+    const res = await fetch('../../verify.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ document_id: docId, action: status }),
+    }).then(r => r.json()).catch(() => null);
+
+    if (res?.success) {
+      setDocs(prev => prev.map(d => d.id === docId ? { ...d, status } : d));
+    }
+  };
+
+  const DOC_LABELS = {
+    transcript:         'Transcript',
+    passport:           'Passport / ID',
+    personal_statement: 'Personal Statement',
+    cv:                 'CV',
+    recommendation_1:   'Recommendation 1',
+    recommendation_2:   'Recommendation 2',
+    language_cert:      'Language Cert',
+    birth_certificate:  'Birth Certificate',
+    logo:               'University Logo',
+    accreditation:      'Accreditation',
+    brochure:           'Brochure',
+  };
+
+  const visible = filter === 'all' ? docs : docs.filter(d => d.status === filter);
+
+  return (
+    <div>
+      {/* Filter pills */}
+      <div style={{ display:'flex', gap:8, marginBottom:20 }}>
+        {['pending','approved','rejected','all'].map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            style={{
+              padding:'6px 16px', borderRadius:20, border:'none', cursor:'pointer',
+              fontFamily:'Inter,sans-serif', fontWeight:700, fontSize:12,
+              background: filter === f ? 'rgba(59,130,246,.3)' : 'rgba(255,255,255,.06)',
+              color: filter === f ? '#3b82f6' : '#64748b',
+            }}>
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign:'center', padding:40, color:'#64748b' }}>Loading…</div>
+      ) : visible.length === 0 ? (
+        <div style={{ textAlign:'center', padding:40, color:'#64748b' }}>
+          No {filter} documents
+        </div>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          {visible.map(doc => (
+            <div key={doc.id} style={{
+              display:'flex', alignItems:'center', gap:16, padding:'14px 18px',
+              background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.07)',
+              borderRadius:12,
+            }}>
+              <i className="fa-solid fa-file-lines"
+                style={{ fontSize:22, color:'#3b82f6', flexShrink:0 }}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:600, fontSize:14 }}>
+                  {DOC_LABELS[doc.doc_type] || doc.doc_type}
+                </div>
+                <div style={{ fontSize:12, color:'#64748b', marginTop:2 }}>
+                  {doc.user_email || `User #${doc.user_id}`} ·
+                  {doc.file_name} ·
+                  Uploaded {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('en-GB') : ''}
+                </div>
+              </div>
+              <a href={`../../${doc.file_path}`} target="_blank" rel="noreferrer"
+                style={{ color:'#3b82f6', fontSize:12, textDecoration:'none', marginRight:8 }}>
+                <i className="fa-solid fa-eye"/> View
+              </a>
+              {doc.status !== 'approved' && (
+                <button onClick={() => updateDoc(doc.id, 'approved')}
+                  style={{ padding:'6px 14px', borderRadius:8, border:'none', cursor:'pointer',
+                    background:'rgba(74,222,128,.15)', color:'#4ade80',
+                    fontSize:12, fontWeight:700, fontFamily:'Inter,sans-serif' }}>
+                  Approve
+                </button>
+              )}
+              {doc.status !== 'rejected' && (
+                <button onClick={() => updateDoc(doc.id, 'rejected')}
+                  style={{ padding:'6px 14px', borderRadius:8, border:'none', cursor:'pointer',
+                    background:'rgba(248,113,113,.15)', color:'#f87171',
+                    fontSize:12, fontWeight:700, fontFamily:'Inter,sans-serif', marginLeft:6 }}>
+                  Reject
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+Then add it to the admin nav and router — in the sidebar nav items, add:
+  { id:'documents', icon:'fa-folder-open', label:'Documents' }
+
+And in the page router:
+  {page === 'documents' && <DocumentsPanel/>}
+
+Note: You'll also need to update verify.php to handle document_id:
+In DATABASE/verify.php, add a document update branch:
+  if (isset($data['document_id'])) {
+    $doc_id = (int)$data['document_id'];
+    $action = in_array($data['action'], ['approved','rejected']) ? $data['action'] : null;
+    if (!$action) fail('Invalid action for document.');
+    $stmt = $conn->prepare('UPDATE documents SET status=? WHERE id=?');
+    $stmt->bind_param('si', $action, $doc_id);
+    $stmt->execute();
+    $stmt->close();
+    respond(['success' => true]);
+  }
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 6.2 — Enrollment Certificate Panel
+────────────────────────────────────────────────────────────────────────────────
+Add a CertificatesPanel component to admin.html that shows all offer-status
+applications and lets admin generate an Enrollment Certificate for each.
+
+const CertificatesPanel = () => {
+  const [apps,     setApps]     = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [generating, setGenerating] = useState(null); // app_id being processed
+  const [certs,    setCerts]    = useState({}); // {app_id: cert_data}
+
+  useEffect(() => {
+    fetch('../../applications.php', { credentials:'include' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Show all apps that have reached offer or beyond
+          const eligible = (data.applications || []).filter(a =>
+            ['offer','review'].includes(a.status)
+          );
+          setApps(eligible);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const generateCert = async (appId) => {
+    setGenerating(appId);
+    const res = await fetch('../../certificate.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ application_id: appId }),
+    }).then(r => r.json()).catch(() => ({ success: false, error: 'Network error' }));
+
+    if (res.success) {
+      setCerts(prev => ({ ...prev, [appId]: res }));
+    } else {
+      alert('Certificate generation failed: ' + (res.error || 'Unknown error'));
+    }
+    setGenerating(null);
+  };
+
+  if (loading) return <div style={{ textAlign:'center', padding:40, color:'#64748b' }}>Loading…</div>;
+
+  if (apps.length === 0) return (
+    <div style={{ textAlign:'center', padding:48 }}>
+      <i className="fa-solid fa-certificate"
+        style={{ fontSize:36, color:'#3d5a80', marginBottom:16, display:'block' }}/>
+      <p style={{ color:'#64748b' }}>
+        No eligible applications yet. Applications must reach "Offer" status.
+      </p>
+    </div>
+  );
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+      {apps.map(app => {
+        const cert = certs[app.id];
+        return (
+          <div key={app.id} style={{
+            padding:20, borderRadius:14,
+            background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.07)',
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+              <div style={{ width:48, height:48, borderRadius:12, flexShrink:0,
+                background:'linear-gradient(135deg,rgba(26,86,219,.2),rgba(6,182,212,.1))',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontWeight:700, color:'#3b82f6', fontSize:14 }}>
+                #{app.id}
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:700, fontSize:15 }}>
+                  {app.full_name || app.student_email || `Student #${app.student_id}`}
+                </div>
+                <div style={{ fontSize:12, color:'#64748b', marginTop:2 }}>
+                  → {app.uni_name || `University #${app.university_id}`} ·
+                  Status: <strong style={{ color:'#4ade80' }}>{app.status}</strong> ·
+                  Applied {app.applied_at ? new Date(app.applied_at).toLocaleDateString('en-GB') : ''}
+                </div>
+                {cert && (
+                  <div style={{ fontSize:12, color:'#fbbf24', marginTop:4,
+                    display:'flex', alignItems:'center', gap:6 }}>
+                    <i className="fa-solid fa-certificate"/>
+                    Certificate ID: {cert.certificate_id}
+                    <a href={`../../${cert.file_url}`} target="_blank" rel="noreferrer"
+                      style={{ color:'#3b82f6', marginLeft:8 }}>
+                      <i className="fa-solid fa-download"/> Download
+                    </a>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => generateCert(app.id)}
+                disabled={generating === app.id || !!cert}
+                style={{
+                  padding:'9px 18px', borderRadius:10, border:'none', cursor: cert ? 'default' : 'pointer',
+                  fontFamily:'Inter,sans-serif', fontWeight:700, fontSize:13,
+                  background: cert
+                    ? 'rgba(74,222,128,.15)'
+                    : 'linear-gradient(135deg,#1a56db,#06b6d4)',
+                  color: cert ? '#4ade80' : '#fff',
+                  display:'flex', alignItems:'center', gap:8,
+                }}>
+                {generating === app.id
+                  ? <><i className="fa-solid fa-spinner" style={{ animation:'spin 1s linear infinite' }}/> Generating…</>
+                  : cert
+                    ? <><i className="fa-solid fa-circle-check"/> Issued</>
+                    : <><i className="fa-solid fa-certificate"/> Generate Certificate</>
+                }
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+Add to admin sidebar nav: { id:'certificates', icon:'fa-certificate', label:'Certificates' }
+Add to admin router: {page === 'certificates' && <CertificatesPanel/>}
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE 6.3 — Commission Log Panel
+────────────────────────────────────────────────────────────────────────────────
+Add a CommissionPanel component that shows the commission tracker.
+
+const CommissionPanel = () => {
+  const [records, setRecords]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [editing, setEditing]   = useState(null);
+  const [form,    setForm]      = useState({});
+
+  useEffect(() => {
+    fetch('../../commission_log.php', { credentials:'include' })
+      .then(r => r.json())
+      .then(data => { if (data.success) setRecords(data.records || []); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const save = async () => {
+    const res = await fetch('../../commission_log.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(form),
+    }).then(r => r.json()).catch(() => null);
+
+    if (res?.success) {
+      setRecords(prev => editing
+        ? prev.map(r => r.id === editing ? res.record : r)
+        : [res.record, ...prev]
+      );
+      setEditing(null);
+      setForm({});
+    }
+  };
+
+  const STATUS_COLOR = {
+    pending:  '#fbbf24',
+    invoiced: '#3b82f6',
+    paid:     '#4ade80',
+    disputed: '#f87171',
+  };
+
+  const totalPending = records.filter(r => r.status === 'pending').reduce((s,r) => s + Number(r.amount_fcfa||0), 0);
+  const totalPaid    = records.filter(r => r.status === 'paid').reduce((s,r) => s + Number(r.amount_fcfa||0), 0);
+
+  return (
+    <div>
+      {/* Summary cards */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:24 }}>
+        {[
+          { label:'Total records',    value: records.length,         color:'#3b82f6', icon:'fa-list' },
+          { label:'Pending (FCFA)',   value: totalPending.toLocaleString(), color:'#fbbf24', icon:'fa-clock' },
+          { label:'Collected (FCFA)', value: totalPaid.toLocaleString(),    color:'#4ade80', icon:'fa-circle-check' },
+        ].map(c => (
+          <div key={c.label} style={{
+            padding:20, borderRadius:14,
+            background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.07)',
+            textAlign:'center',
+          }}>
+            <i className={`fa-solid ${c.icon}`}
+              style={{ fontSize:20, color:c.color, marginBottom:8, display:'block' }}/>
+            <div style={{ fontSize:22, fontWeight:700, color:'#f0f4ff' }}>{c.value}</div>
+            <div style={{ fontSize:11, color:'#64748b', marginTop:4 }}>{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add / edit form */}
+      <div style={{ marginBottom:20, padding:20, borderRadius:14,
+        background:'rgba(26,86,219,.06)', border:'1px solid rgba(26,86,219,.2)' }}>
+        <div style={{ fontWeight:600, marginBottom:14, fontSize:14 }}>
+          {editing ? 'Edit Record' : 'Add Commission Record'}
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Application ID
+            </label>
+            <input className="admin-input"
+              value={form.application_id || ''}
+              onChange={e => setForm(p => ({ ...p, application_id: e.target.value }))}
+              placeholder="e.g. 42"/>
+          </div>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Amount (FCFA)
+            </label>
+            <input className="admin-input"
+              value={form.amount_fcfa || ''}
+              onChange={e => setForm(p => ({ ...p, amount_fcfa: e.target.value }))}
+              placeholder="e.g. 150000"/>
+          </div>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Status
+            </label>
+            <select className="admin-input"
+              value={form.status || 'pending'}
+              onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
+              <option value="pending">Pending</option>
+              <option value="invoiced">Invoiced</option>
+              <option value="paid">Paid</option>
+              <option value="disputed">Disputed</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Invoice Date
+            </label>
+            <input className="admin-input" type="date"
+              value={form.invoice_date || ''}
+              onChange={e => setForm(p => ({ ...p, invoice_date: e.target.value }))}/>
+          </div>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Payment Date
+            </label>
+            <input className="admin-input" type="date"
+              value={form.payment_date || ''}
+              onChange={e => setForm(p => ({ ...p, payment_date: e.target.value }))}/>
+          </div>
+          <div>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Payment Method
+            </label>
+            <input className="admin-input"
+              value={form.payment_method || ''}
+              onChange={e => setForm(p => ({ ...p, payment_method: e.target.value }))}
+              placeholder="e.g. MTN Mobile Money"/>
+          </div>
+          <div style={{ gridColumn:'1/-1' }}>
+            <label style={{ fontSize:11, color:'#64748b', display:'block', marginBottom:4 }}>
+              Notes
+            </label>
+            <input className="admin-input"
+              value={form.notes || ''}
+              onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+              placeholder="Any relevant notes…"/>
+          </div>
+        </div>
+        <div style={{ display:'flex', gap:10, marginTop:14 }}>
+          <button onClick={save}
+            style={{ padding:'9px 20px', borderRadius:8, border:'none', cursor:'pointer',
+              background:'linear-gradient(135deg,#1a56db,#06b6d4)', color:'#fff',
+              fontFamily:'Inter,sans-serif', fontWeight:700, fontSize:13 }}>
+            {editing ? 'Update' : 'Add Record'}
+          </button>
+          {editing && (
+            <button onClick={() => { setEditing(null); setForm({}); }}
+              style={{ padding:'9px 20px', borderRadius:8, border:'1px solid rgba(255,255,255,.1)',
+                cursor:'pointer', background:'transparent', color:'#94a3b8',
+                fontFamily:'Inter,sans-serif', fontWeight:600, fontSize:13 }}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Records table */}
+      {loading ? (
+        <div style={{ textAlign:'center', padding:32, color:'#64748b' }}>Loading…</div>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {records.map(r => (
+            <div key={r.id} style={{
+              display:'flex', alignItems:'center', gap:14, padding:'13px 16px',
+              background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.07)',
+              borderRadius:10,
+            }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:600 }}>
+                  App #{r.application_id}
+                  {r.student_name && ` · ${r.student_name}`}
+                  {r.uni_name && ` → ${r.uni_name}`}
+                </div>
+                <div style={{ fontSize:12, color:'#64748b', marginTop:2 }}>
+                  {r.amount_fcfa ? Number(r.amount_fcfa).toLocaleString() + ' FCFA' : 'Amount TBD'} ·
+                  {r.invoice_date ? ' Invoiced ' + r.invoice_date : ''} ·
+                  {r.payment_method || ''}
+                </div>
+              </div>
+              <span style={{
+                padding:'4px 12px', borderRadius:20, fontSize:11, fontWeight:700,
+                background: (STATUS_COLOR[r.status] || '#64748b') + '22',
+                color: STATUS_COLOR[r.status] || '#64748b',
+                border: '1px solid ' + (STATUS_COLOR[r.status] || '#64748b') + '44',
+              }}>
+                {r.status}
+              </span>
+              <button onClick={() => { setEditing(r.id); setForm(r); }}
+                style={{ padding:'5px 12px', borderRadius:6, border:'1px solid rgba(255,255,255,.1)',
+                  cursor:'pointer', background:'transparent', color:'#94a3b8',
+                  fontFamily:'Inter,sans-serif', fontSize:12 }}>
+                Edit
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+Add to admin sidebar nav: { id:'commission', icon:'fa-coins', label:'Commission Log' }
+Add to admin router: {page === 'commission' && <CommissionPanel/>}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7 — SCHEMA ADDITIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Run these SQL statements in phpMyAdmin → SQL tab, in this exact order:
+
+-- 1. UNIQUE constraint on documents (required for upsert uploads)
+ALTER TABLE documents
+  ADD UNIQUE KEY IF NOT EXISTS unique_user_doc (user_id, doc_type);
+
+-- 2. Seminars table
+CREATE TABLE IF NOT EXISTS seminars (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  university_id INT NOT NULL,
+  title         VARCHAR(255) NOT NULL,
+  description   TEXT DEFAULT NULL,
+  event_date    DATE NOT NULL,
+  event_time    TIME NOT NULL,
+  max_students  INT NOT NULL DEFAULT 50,
+  topic         VARCHAR(255) DEFAULT NULL,
+  meet_link     VARCHAR(500) NOT NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (university_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_uni (university_id)
+) ENGINE=InnoDB;
+
+-- 3. Enrollment certificates table
+CREATE TABLE IF NOT EXISTS enrollment_certificates (
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  application_id INT NOT NULL UNIQUE,
+  certificate_id VARCHAR(50) NOT NULL UNIQUE,
+  file_path      VARCHAR(500) NOT NULL,
+  issued_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 4. Commission log table
+CREATE TABLE IF NOT EXISTS commission_log (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  application_id   INT NOT NULL,
+  certificate_id   VARCHAR(50) DEFAULT NULL,
+  amount_fcfa      DECIMAL(12,2) DEFAULT NULL,
+  currency         VARCHAR(10) DEFAULT 'FCFA',
+  status           ENUM('pending','invoiced','paid','disputed') DEFAULT 'pending',
+  invoice_date     DATE DEFAULT NULL,
+  payment_date     DATE DEFAULT NULL,
+  payment_method   VARCHAR(100) DEFAULT NULL,
+  notes            TEXT DEFAULT NULL,
+  created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+  INDEX idx_status (status)
+) ENGINE=InnoDB;
+
+-- 5. Also needed: update users.php to support role=all_documents
+-- (This is handled in code, no schema change required)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 8 — THE EXPECTED END RESULT (ACCEPTANCE CRITERIA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When this prompt is fully implemented, BetterAbroad must pass all of these
+checks without error. Test each one in a browser after every section.
+
+AUTH & SESSION
+  ✅ A new user can register as student or university
+  ✅ A registered user can log in and reach their dashboard
+  ✅ Logging out clears the session and returns to Sign In tab
+  ✅ Refreshing the page while logged in restores the session
+  ✅ Incorrect password shows "Incorrect email or password" in the form,
+     NOT a browser alert()
+
+STUDENT FLOW
+  ✅ Student completes 4-step registration wizard → profile saved to DB
+  ✅ Student uploads all 8 document types with progress bars
+  ✅ Student downloads their application dossier PDF (dossier.php)
+  ✅ Student browses universities in marketplace with search + filters
+  ✅ Student applies to a university → application appears in Applications tab
+  ✅ Student sees application status changes made by university
+  ✅ Student receives notification when status updates
+  ✅ Student can send and receive messages
+  ✅ Student can edit profile fields from Settings tab
+
+UNIVERSITY FLOW
+  ✅ University completes 3-step registration wizard → profile saved
+  ✅ University uploads 3 document types
+  ✅ University browses students in marketplace
+  ✅ University sees applicants in Applicants tab
+  ✅ University can change application status via dropdown
+     (new → review → interview → offer → rejected)
+  ✅ University can add notes to applications
+  ✅ University creates a seminar → saved to DB → persists on refresh
+  ✅ University seminar shows real Google Meet link
+  ✅ University can send and receive messages
+
+ADMIN FLOW
+  ✅ Admin logs in at /admin.html
+  ✅ Admin sees list of all students and universities
+  ✅ Admin can verify or reject a user profile
+  ✅ Admin can approve or reject individual documents
+  ✅ Admin sees all applications across all user pairs
+  ✅ Admin can generate Enrollment Certificate for offer-status applications
+  ✅ Certificate PDF is saved to uploads/certificates/ and downloadable
+  ✅ Admin can create and update commission log records
+  ✅ Commission panel shows total pending and total collected
+  ✅ All admin API calls use ../../endpoint.php (NOT ../../DATABASE/)
+
+NOTIFICATIONS
+  ✅ Bell icon in TopBar shows red badge with unread count
+  ✅ Clicking bell opens dropdown with recent notifications
+  ✅ "Mark all read" clears the badge
+  ✅ Notifications are created for: application submitted,
+     application status change, user verified, certificate issued
+
+PUBLIC INTAKE DASHBOARD
+  ✅ Accessible at market.html#intake (no login required)
+  ✅ Shows real aggregate stats from DB (total students, by nationality, by major)
+  ✅ Below-fold profiles are blurred with "Create Partner Account" CTA
+  ✅ No personally identifiable information shown
+
+DATABASE
+  ✅ documents table has UNIQUE KEY on (user_id, doc_type)
+  ✅ seminars table exists with all columns
+  ✅ enrollment_certificates table exists
+  ✅ commission_log table exists
+
+NO REGRESSIONS
+  ✅ market.html has zero occurrences of '../../DATABASE/' in any fetch() call
+  ✅ admin.html has zero occurrences of '../../DATABASE/' in any fetch() call
+  ✅ marketplace loads real student/university data from DB
+  ✅ File uploads save to correct folder and show progress bar
+  ✅ Messages send and receive in real time
+  ✅ Settings tab saves changes to DB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 9 — ABSOLUTE CODING RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+These rules must never be broken. Any code that violates them will cause
+bugs that are hard to diagnose and will waste hours of debugging.
+
+RULE 1 — API PATHS
+  All fetch() calls must use:   '../../endpoint.php'
+  Never use:                    '../../DATABASE/endpoint.php'
+  This is a double-path error that causes silent 404s.
+
+RULE 2 — NO BUNDLER
+  Do not add any import or export statements.
+  Do not reference node_modules, package.json, or any npm packages.
+  All libraries come from CDN scripts already in the HTML <head>.
+
+RULE 3 — PHP RESPONSES
+  Every PHP file must respond with respond([]) or fail([]).
+  Never use echo, print, or die with a string directly.
+  Always set Content-Type: application/json (done by db.php).
+
+RULE 4 — CREDENTIALS
+  Every fetch() to a PHP endpoint must include: credentials: 'include'
+  Without this, the BA_SESSION cookie is not sent and auth fails.
+
+RULE 5 — PREPARED STATEMENTS
+  Every SQL query that uses user input MUST use prepared statements
+  with bind_param(). Never concatenate user input into SQL strings.
+
+RULE 6 — TARGETED EDITS
+  Do not rewrite entire files. Locate the exact function or component
+  and apply the minimum change needed. This prevents introducing new bugs
+  into already-working code.
+
+RULE 7 — COMPONENT ORDER
+  In market.html, all React components must be defined before they are
+  used. If component A uses component B, B must appear earlier in the file.
+  NotificationsDropdown must appear before TopBar.
+  IntakeDashboard must appear before App.
+
+RULE 8 — ERROR HANDLING
+  Every fetch() must have a .catch() or try/catch that fails gracefully.
+  Never let an unhandled promise rejection crash the entire React app.
+  For user-facing errors, show a message in the UI — never alert().
+
+RULE 9 — ADMIN AUTH
+  All new admin endpoints must call require_admin() not require_auth().
+  require_admin() internally calls require_auth() and also checks role=admin.
+  An authenticated student or university must NOT be able to reach admin
+  endpoints even if they construct the request manually.
+
+RULE 10 — TCPDF PATH
+  XAMPP includes TCPDF. Require it in certificate.php like this:
+  $tcpdf_path = 'C:/xampp/htdocs/tcpdf/tcpdf.php';
+  if (!file_exists($tcpdf_path)) {
+      // Try composer path
+      $tcpdf_path = __DIR__ . '/../../vendor/tecnickcom/tcpdf/tcpdf.php';
+  }
+  if (!file_exists($tcpdf_path)) fail('TCPDF not found. Install via composer require tecnickcom/tcpdf', 500);
+  require_once $tcpdf_path;
+
+  If TCPDF is not installed, generate a simple HTML-to-text receipt instead
+  and save it as a .txt file — do not fail silently.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Implementation order:
+  1. Section 3 bug fixes (30 min)
+  2. Section 7 SQL migrations (5 min in phpMyAdmin)
+  3. Section 4 new PHP files (2-3 hours)
+  4. Section 5 market.html changes (2 hours)
+  5. Section 6 admin.html changes (1-2 hours)
+  6. Full acceptance criteria test — Section 8 checklist (30 min)
+

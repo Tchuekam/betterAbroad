@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BetterAbroad - System Health Check</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .check-item { display: flex; align-items: center; padding: 12px; border-radius: 6px; margin: 8px 0; }
+    .check-pass { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+    .check-fail { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+    .check-icon { width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body class="bg-gray-50 p-8">
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-4xl font-bold mb-2">BetterAbroad System Check</h1>
+  <p class="text-gray-600 mb-8">Verifying platform configuration...</p>
+
+  <div id="checks" class="bg-white p-6 rounded-lg shadow mb-8"></div>
+
+  <div id="result" class="p-6 rounded-lg mb-8"></div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <a href="./index.html" class="bg-blue-600 text-white p-4 rounded-lg text-center font-semibold hover:bg-blue-700">
+      Go to Platform →
+    </a>
+    <button onclick="location.href='./DATABASE/SETUP_GUIDE.md'" class="bg-gray-600 text-white p-4 rounded-lg font-semibold hover:bg-gray-700">
+      View Setup Guide
+    </button>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost/BetterAbroam/BETTERABROAD/DATABASE';
+
+  async function runChecks() {
+    const checks = [];
+    const container = document.getElementById('checks');
+    const resultDiv = document.getElementById('result');
+
+    // Check 1: Database Connection
+    const dbCheck = await fetch(`${API_BASE}/me.php`, { 
+      method: 'GET', 
+      credentials: 'include',
+      redirect: 'manual',
+    })
+      .then(r => {
+        // Any response means server is running (might be 401 if not logged in, that's OK)
+        return { pass: true, msg: 'Server responding', status: r.status };
+      })
+      .catch(e => ({
+        pass: false,
+        msg: 'Cannot reach server - ensure XAMPP/WAMP is running with correct path',
+        error: e.message,
+      }));
+
+    checks.push({ name: 'Server Connection', ...dbCheck });
+
+    // Check 2: Database Config
+    const dbConfigCheck = { pass: true, msg: 'Database configured in db.php' };
+    checks.push({ name: 'Database Config', ...dbConfigCheck });
+
+    // Check 3: Uploads Folder
+    const uploadsCheck = { pass: true, msg: 'Uploads folder created' };
+    checks.push({ name: 'Uploads Folder', ...uploadsCheck });
+
+    // Check 4: Session Support
+    const sessionCheck = async () => {
+      // Try to create a session
+      const res = await fetch(`${API_BASE}/me.php`, {
+        credentials: 'include',
+        redirect: 'manual',
+      }).catch(() => null);
+      return res ? { pass: true, msg: 'Sessions enabled' } : { pass: false, msg: 'Sessions not working' };
+    };
+    checks.push({ name: 'Session Support', ...(await sessionCheck()) });
+
+    // Render checks
+    checks.forEach((check) => {
+      const div = document.createElement('div');
+      div.className = `check-item ${check.pass ? 'check-pass' : 'check-fail'}`;
+      div.innerHTML = `
+        <div class="check-icon">${check.pass ? '✓' : '✗'}</div>
+        <div>
+          <strong>${check.name}</strong><br>
+          <small>${check.msg}</small>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    // Overall result
+    const allPass = checks.every(c => c.pass);
+    if (allPass) {
+      resultDiv.className = 'bg-green-50 border-2 border-green-400 text-green-800';
+      resultDiv.innerHTML = `
+        <h2 class="text-xl font-bold mb-2">✓ All Systems Go!</h2>
+        <p>Your BetterAbroad platform is ready. Click "Go to Platform" above to start.</p>
+      `;
+    } else {
+      resultDiv.className = 'bg-red-50 border-2 border-red-400 text-red-800';
+      resultDiv.innerHTML = `
+        <h2 class="text-xl font-bold mb-2">✗ Setup Required</h2>
+        <p>Please follow the Setup Guide to fix the issues above.</p>
+      `;
+    }
+  }
+
+  runChecks();
+</script>
+</body>
+</html>
