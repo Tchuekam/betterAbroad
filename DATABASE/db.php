@@ -59,19 +59,17 @@ if (file_exists(__DIR__ . '/../.env')) {
         if (strpos(trim($line), '#') === 0) continue;
         if (strpos($line, '=') === false) continue;
         list($name, $value) = explode('=', $line, 2);
-        if (!getenv(trim($name))) {
-            putenv(trim($name) . '=' . trim($value));
-        }
+        putenv(trim($name) . '=' . trim($value));
     }
 }
 
-define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('DB_NAME') ?: 'betterabroad');
+$db_host = getenv('DB_HOST') ?: '127.0.0.1';
+$db_user = getenv('DB_USER') ?: 'root';
+$db_pass = getenv('DB_PASS') ?: '';
+$db_name = getenv('DB_NAME') ?: 'betterabroad';
 
 // ── CONNECT ─────────────────────────────────────────────────
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 $conn->set_charset('utf8mb4');
 
 if ($conn->connect_error) {
